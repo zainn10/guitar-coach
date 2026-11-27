@@ -79,6 +79,10 @@ export interface Data {
 
 const KEY = 'guitar-coach.v0';
 
+/** Safe JSON reading for files from outside: drops keys that could tamper with JavaScript objects. */
+const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+export const safeParse = (text: string) => JSON.parse(text, (k, v) => (BAD_KEYS.has(k) ? undefined : v));
+
 const defaults: Data = {
   settings: { headphones: true, theme: 'system', diagramView: 'chart', sensitivity: 'medium' },
   attempts: {}, takes: [], lessons: {}, items: {}, drills: [], practice: {}, ladders: {}, quizzes: [],
@@ -98,6 +102,10 @@ function load(): Data {
 }
 
 let data = load();
+if (data.settings.claudeKey && typeof location !== 'undefined' && !(location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:')) {
+  data = { ...data, settings: { ...data.settings, claudeKey: undefined } };
+  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* ignore */ }
+}
 if (!data.device) {
   data = { ...data, device: typeof window !== 'undefined' && 'showDirectoryPicker' in window ? 'mac' : 'phone' };
   try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* ignore */ }
@@ -130,7 +138,11 @@ export const store = {
   get: () => data,
   subscribe(fn: () => void) { subs.add(fn); return () => { subs.delete(fn); }; },
   update(fn: (d: Data) => Data) { data = fn(data); save(); },
-  setSettings(p: Partial<Settings>) { data = { ...data, settings: { ...data.settings, ...p } }; save(); },
+  setSettings(p: Partial<Settings>) {
+    const isLocal = typeof location === 'undefined' || location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
+    if (!isLocal && p.claudeKey) p = { ...p, claudeKey: undefined }; // never store a key on the shared public web address
+    data = { ...data, settings: { ...data.settings, ...p } }; save();
+  },
   addAttempt(chord: string, a: ChordAttempt) {
     const list = [...(data.attempts[chord] ?? []), a].slice(-30);
     data = { ...data, attempts: { ...data.attempts, [chord]: list } };
@@ -219,8 +231,8 @@ export const store = {
   },
   /** Combine another device's backup into this one (nothing is lost on either side). */
   mergeJson(text: string): { from: string; changed: boolean } {
-    const parsed = JSON.parse(text);
-    if (parsed?.app !== 'guitar-coach' || !parsed.data) throw new Error("That file isn't a Guitar Coach backup.");
+    const parsed = safeParse(text);
+    if (parsed?.app !== 'guitar-coach' || !parsed.data || typeof parsed.data !== 'object' || typeof parsed.exported !== 'string') throw new Error("That file isn't a Guitar Coach backup.");
     const r = parsed.data as Data;
     const from = r.device ?? 'other';
     if (from === data.device) throw new Error('That backup came from this same device. On the other device, save its backup, then sync it here.');
@@ -230,10 +242,10 @@ export const store = {
     return { from, changed: true };
   },
   importJson(text: string) {
-    const parsed = JSON.parse(text);
+    const parsed = safeParse(text);
     if (parsed?.app !== 'guitar-coach' || !parsed.data) throw new Error("That file isn't a Guitar Coach backup.");
     const key = data.settings.claudeKey;
-    data = merge(parsed.data);
+    data = merge({ ...parsed.data, settings: { ...parsed.data.settings, claudeKey: undefined } });
     if (key) data.settings.claudeKey = key;
     save();
   },

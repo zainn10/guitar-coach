@@ -4,6 +4,7 @@ import { scheduleClicks } from '../audio/metronome';
 import { loopbackLatency, strumAlongLatency, CalibrationResult } from '../audio/latency';
 import { store, effectiveLatency } from '../storage/store';
 import { chooseFolder, folderPermission, folderSupported, forgetFolder, getFolder, saveFile, subscribeFolder } from '../storage/folder';
+import { isLocalApp } from '../where';
 import { syncFromFolder, savePhoneBackup, MAC_FILE, PHONE_FILE } from '../storage/sync';
 import { Card, LevelMeter, MicGate, startMic, stopMic, useEngineState, useStore, micErrorText, StopListening } from '../ui';
 import { useStrums } from '../audio/useStrums';
@@ -277,6 +278,11 @@ function BackupCard() {
 function ClaudeKeyCard() {
   const { settings } = useStore();
   const [val, setVal] = useState('');
+  if (!isLocalApp) return (
+    <Card title="Ask Claude">
+      <p>For safety, Ask Claude only works in the Mac app. An API key is never stored on the public web address, because other pages on the same address could read it.</p>
+    </Card>
+  );
   return (
     <Card title="Ask Claude (optional)">
       <p>The "Ask Claude" buttons send what you're working on and your recent results to Claude for a personal tip. They need your own Anthropic API key. Each question costs a fraction of a penny, billed to your Anthropic account.</p>

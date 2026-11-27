@@ -37,3 +37,14 @@ describe('syncing progress between Mac and phone', () => {
     expect(again.practiceOthers?.phone).toEqual(m.practiceOthers?.phone);
   });
 });
+
+import { safeParse } from '../src/storage/store';
+describe('reading backup files safely', () => {
+  it('ignores keys that try to tamper with JavaScript objects', () => {
+    const evil = '{"app":"guitar-coach","exported":"x","data":{"attempts":{"__proto__":{"polluted":true}},"constructor":{"prototype":{"bad":1}}}}';
+    const p = safeParse(evil);
+    expect(Object.keys(p.data.attempts)).toEqual([]);
+    expect(p.data.constructor).toBe(Object);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+});

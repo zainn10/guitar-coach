@@ -25,6 +25,10 @@ Personal context about the user is deliberately NOT kept in this public reposito
 - Songs are chord progressions only: no lyrics, melodies, riffs or solos of copyrighted songs.
 - "Ask Claude" uses the user's own API key, stored in the browser only, excluded from backups.
 - Never commit personal information about the user to this repository.
+- Security (the user's top priority): strict Content-Security-Policy in index.html (only GitHub raw +
+  api.anthropic.com may be contacted); refuses to run in a frame; backup files read with `safeParse`;
+  the public web version never stores an API key (all *.github.io pages of an account share storage),
+  so Ask Claude is Mac-app only. Keep these when changing things.
 
 ## Where things are
 - `content/`: course.json, lessons/*.md (YAML header + text with `::` visuals; see

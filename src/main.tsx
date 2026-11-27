@@ -1,3 +1,8 @@
+// Refuse to run inside another website's frame (stops other sites embedding the app to trick you into allowing the mic).
+if (window.top !== window.self) {
+  document.documentElement.textContent = 'Guitar Coach can only be opened directly, not inside another website.';
+  throw new Error('framed');
+}
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';

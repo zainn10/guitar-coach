@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Anthropic from '@anthropic-ai/sdk';
 import { store } from '../storage/store';
 import { useStore } from '../ui';
+import { isLocalApp } from '../where';
 
 const SYSTEM = `You are a warm, practical guitar teacher helping one adult beginner who plays a right-handed nylon-string (classical) guitar and is especially interested in flamenco. They learn visually and are not technical.
 Answer in plain British English, in at most about 150 words: one short diagnosis, then 2-4 concrete things to try, ordered by likely impact. Use string names (6th = low E) and finger numbers (1 index, 2 middle, 3 ring, 4 little; right hand p-i-m-a).
@@ -56,6 +57,7 @@ export function AskClaude({ context, label = 'Ask Claude for a personal tip' }: 
   const [err, setErr] = useState<string | null>(null);
   const key = settings.claudeKey;
 
+  if (!isLocalApp) return null; // Ask Claude is Mac-app only (no API keys on the public web address)
   if (!open) return <button className="btn ask-btn" onClick={() => setOpen(true)}>✦ {label}</button>;
   return (
     <div className="ask-panel">
