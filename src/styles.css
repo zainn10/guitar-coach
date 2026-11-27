@@ -303,7 +303,7 @@ button.mic-chip.on { color: var(--bad); }
 .strum-pattern { margin: 0; }
 .strum-pattern figcaption { font-weight: 700; margin-bottom: 6px; }
 .sp-wrap { display: flex; gap: 14px; align-items: center; }
-.sp-hand { width: 70px; flex: none; }
+.sp-hand { width: 84px; flex: none; }
 .sp-grid { display: grid; gap: 4px; flex: 1; min-width: 0; }
 .sp-cell { display: grid; justify-items: center; padding: 8px 0 6px; border-radius: 8px; background: var(--surface-2); }
 .sp-cell.on-beat { box-shadow: inset 0 3px 0 var(--line); }
@@ -539,3 +539,6 @@ a.btn.primary { color: var(--accent-fg); }
 .ask-btn { align-self: flex-start; }
 .stack > .btn, .stack > a.btn { align-self: flex-start; }
 .tab-view svg { max-width: 760px; }
+:root { --nail: #f6e3d6; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --nail: #ecd3c2; } }
+:root[data-theme="dark"] { --nail: #ecd3c2; }

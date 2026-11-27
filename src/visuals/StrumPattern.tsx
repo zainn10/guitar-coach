@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { startLoop, Loop } from '../audio/scheduler';
 import { playChord, playClick, playChuck } from '../audio/sounds';
 import { chordById } from '../content';
+import { Skin, Nail, fingerPath } from './Art';
 
 export function countLabels(slots: number, beatsPerBar = 4) {
   const per = slots / beatsPerBar;
@@ -62,11 +63,19 @@ export function StrumPattern({ pattern, bpm: initialBpm = 70, chords = ['G'], be
     <figure className="strum-pattern">
       {title && <figcaption>{title}</figcaption>}
       <div className="sp-wrap">
-        <svg className="sp-hand" viewBox="0 0 90 150" aria-hidden>
-          {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={12 + i * 13} x2={12 + i * 13} y1={20} y2={130} stroke={hitting ? 'var(--f1)' : 'var(--string)'} strokeWidth={2.6 - i * 0.3} className={hitting ? 'vibrate' : ''} />)}
-          <g style={{ transform: `translateY(${pos < 0 ? 0 : handDown ? 70 : 0}px)`, transition: `transform ${(60 / bpm / per) * 1000 * 0.9}ms ease-in-out` }}>
-            <path d="M5 30 q40 -14 80 0 l-4 14 q-36 -10 -72 0 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-            <path d="M40 38 l8 18 l8 -18 z" fill="var(--pick)" />
+        <svg className="sp-hand" viewBox="0 0 120 180" aria-hidden>
+          {/* the guitar top under the strings, with the edge of the soundhole */}
+          <rect x={0} y={44} width={120} height={92} rx={8} fill="var(--wood)" opacity={0.28} />
+          {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={0} x2={120} y1={56 + i * 14} y2={56 + i * 14} stroke={hitting ? 'var(--f1)' : 'var(--string)'} strokeWidth={2.8 - i * 0.35} className={hitting ? 'vibrate' : ''} />)}
+          {/* a loose fist with the index fingernail leading, sweeping down (and back up) across the strings */}
+          <g style={{ transform: `translateY(${pos < 0 ? 10 : handDown ? 104 : 10}px)`, transition: `transform ${(60 / bpm / per) * 1000 * 0.9}ms ease-in-out` }}>
+            <Skin parts={[
+              { d: 'M34 8 C34 -2 44 -6 56 -6 L80 -5 C92 -4 96 4 95 14 L93 30 C92 38 86 42 78 42 L46 42 C38 42 34 36 34 28 Z' },
+              { d: fingerPath(26, 15), transform: 'translate(70 34) rotate(170)' },
+              { d: fingerPath(30, 17), transform: 'translate(36 18) rotate(-120)' },
+            ]} />
+            {[44, 56, 68, 80].map(x => <path key={x} d={`M${x - 5} 36 q5 4 10 0`} stroke="var(--skin-edge)" strokeWidth={1.2} fill="none" opacity={0.6} />)}
+            <Nail len={26} w={15} transform="translate(70 34) rotate(170)" />
           </g>
         </svg>
         <div className="sp-grid" style={{ gridTemplateColumns: `repeat(${slots.length}, minmax(0, 1fr))` }}>

@@ -3,52 +3,75 @@
 import { useEffect, useState } from 'react';
 import { playChord } from '../audio/sounds';
 import { chordById } from '../content';
+import { Skin, Nail, Creases, Badge, fingerPath } from './Art';
 
-function Finger({ x, y, len, angle, w = 26, label, color, lit }: { x: number; y: number; len: number; angle: number; w?: number; label: string; color: string; lit?: boolean }) {
+// Back of the hand, as if you held it up in front of you (left hand: thumb on the right).
+const HAND_FINGERS = [
+  { n: 4, x: 74, y: 146, len: 58, w: 24, a: -9 },
+  { n: 3, x: 99, y: 136, len: 80, w: 26, a: -3 },
+  { n: 2, x: 125, y: 133, len: 90, w: 27, a: 1 },
+  { n: 1, x: 151, y: 137, len: 80, w: 26, a: 6 },
+];
+const PALM = 'M62 150 C60 132 70 124 86 124 L158 126 C170 127 174 137 172 150 L168 204 C164 230 146 242 122 244 L104 244 C82 242 68 230 65 206 Z';
+const FOREARM = 'M92 236 L140 236 L150 300 L84 300 Z';
+const THUMB = { x: 160, y: 206, len: 84, w: 31, a: 40 };
+
+function tip(x: number, y: number, len: number, a: number, back = 14) {
+  const r = (a * Math.PI) / 180;
+  return { x: x + Math.sin(r) * (len - back), y: y - Math.cos(r) * (len - back) };
+}
+
+function HandDrawing({ mirror, labels, colors, highlight }: { mirror: boolean; labels: Record<number | 't', string>; colors: Record<number | 't', string>; highlight?: number | 't' }) {
+  const parts = [
+    { d: FOREARM }, { d: PALM },
+    { d: fingerPath(THUMB.len, THUMB.w), transform: `translate(${THUMB.x} ${THUMB.y}) rotate(${THUMB.a})` },
+    ...HAND_FINGERS.map(f => ({ d: fingerPath(f.len + 14, f.w), transform: `translate(${f.x} ${f.y + 14}) rotate(${f.a})` })),
+  ];
+  const mx = (x: number) => (mirror ? 240 - x : x);
+  const all = [...HAND_FINGERS.map(f => ({ key: f.n as number | 't', ...f })), { key: 't' as const, n: 0, ...THUMB }];
   return (
-    <g transform={`translate(${x} ${y}) rotate(${angle})`}>
-      <rect x={-w / 2} y={-len} width={w} height={len + 14} rx={w / 2} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-      <line x1={-w / 2 + 5} x2={w / 2 - 5} y1={-len * 0.42} y2={-len * 0.42} stroke="var(--skin-edge)" strokeWidth={1} opacity={0.5} />
-      <line x1={-w / 2 + 5} x2={w / 2 - 5} y1={-len * 0.72} y2={-len * 0.72} stroke="var(--skin-edge)" strokeWidth={1} opacity={0.5} />
-      <circle cx={0} cy={-len + 12} r={lit ? 15 : 13} fill={color} stroke="var(--bg)" strokeWidth={2} />
-      <text x={0} y={-len + 17} textAnchor="middle" fontSize={14} fontWeight={800} fill="#fff">{label}</text>
-    </g>
+    <svg viewBox="0 0 240 300" aria-hidden>
+      <g transform={mirror ? 'translate(240 0) scale(-1 1)' : undefined}>
+        <Skin parts={parts} />
+        {HAND_FINGERS.map(f => <Nail key={f.n} len={f.len + 14} w={f.w} transform={`translate(${f.x} ${f.y + 14}) rotate(${f.a})`} />)}
+        <Nail len={THUMB.len} w={THUMB.w} transform={`translate(${THUMB.x} ${THUMB.y}) rotate(${THUMB.a})`} />
+        {HAND_FINGERS.map(f => <Creases key={f.n} len={f.len + 14} w={f.w} transform={`translate(${f.x} ${f.y + 14}) rotate(${f.a})`} />)}
+        {/* knuckles */}
+        {HAND_FINGERS.map(f => <path key={`k${f.n}`} d={`M${f.x - 7} ${f.y + 16} q7 -4 14 0`} stroke="var(--skin-edge)" strokeWidth={1.2} fill="none" opacity={0.5} />)}
+      </g>
+      {all.map(f => {
+        const p = tip(f.x, f.y + (f.key === 't' ? 0 : 14), f.len + (f.key === 't' ? 0 : 14), f.a, 30);
+        if (!labels[f.key]) return null;
+        return <Badge key={String(f.key)} x={mx(p.x)} y={p.y} color={colors[f.key]} label={labels[f.key]} r={highlight === f.key ? 14 : 12} />;
+      })}
+    </svg>
   );
 }
 
 export function LeftHand({ highlight }: { highlight?: number }) {
-  // palm facing you, as if you held your left hand up in front of your face
   return (
-    <figure className="hand-fig">
-      <svg viewBox="0 0 220 250" role="img" aria-label="Left hand, palm facing you: index finger is 1, middle 2, ring 3, little 4. The thumb has no number.">
-        <path d="M58 140 q-4 70 40 92 q34 12 62 -4 q30 -18 30 -60 l2 -40 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-        <Finger x={70} y={140} len={62} angle={-12} w={23} label="4" color="var(--f4)" lit={highlight === 4} />
-        <Finger x={96} y={132} len={84} angle={-4} label="3" color="var(--f3)" lit={highlight === 3} />
-        <Finger x={124} y={130} len={92} angle={2} label="2" color="var(--f2)" lit={highlight === 2} />
-        <Finger x={152} y={134} len={84} angle={9} label="1" color="var(--f1)" lit={highlight === 1} />
-        <g transform="translate(184 186) rotate(52)"><rect x={-13} y={-60} width={27} height={70} rx={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} /><text x={0} y={-36} textAnchor="middle" fontSize={12} fill="var(--skin-edge)" fontWeight={700}>T</text></g>
-      </svg>
+    <figure className="hand-fig" role="img" aria-label="Left hand, back of the hand facing you: index finger is 1, middle 2, ring 3, little 4. The thumb has no number and stays behind the neck.">
+      <HandDrawing mirror={false} highlight={highlight}
+        labels={{ 1: '1', 2: '2', 3: '3', 4: '4', t: 'T' }}
+        colors={{ 1: 'var(--f1)', 2: 'var(--f2)', 3: 'var(--f3)', 4: 'var(--f4)', t: 'var(--muted)' }} />
       <figcaption><strong>Left hand</strong> (presses the strings): 1 index · 2 middle · 3 ring · 4 little. The thumb (T) stays behind the neck.</figcaption>
     </figure>
   );
 }
 
 export function RightHand({ highlight }: { highlight?: string }) {
-  const col = (f: string) => `var(--r${f})`;
+  const map: Record<string, number | 't'> = { p: 't', i: 1, m: 2, a: 3, e: 4 };
   return (
-    <figure className="hand-fig">
-      <svg viewBox="0 0 220 250" role="img" aria-label="Right hand, palm facing you: thumb is p, index i, middle m, ring a. The little finger is e, used in flamenco rasgueado.">
-        <path d="M60 138 q-2 70 30 92 q36 14 64 -2 q34 -20 32 -60 l-2 -32 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-        <g transform="translate(38 188) rotate(-52)"><rect x={-13} y={-62} width={27} height={72} rx={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} /><circle cx={0} cy={-50} r={highlight === 'p' ? 15 : 13} fill={col('p')} stroke="var(--bg)" strokeWidth={2} /><text x={0} y={-45} textAnchor="middle" fontSize={14} fontWeight={800} fill="#fff" transform="rotate(52 0 -50)">p</text></g>
-        <Finger x={72} y={134} len={84} angle={-9} label="i" color={col('i')} lit={highlight === 'i'} />
-        <Finger x={100} y={130} len={92} angle={-2} label="m" color={col('m')} lit={highlight === 'm'} />
-        <Finger x={128} y={132} len={84} angle={4} label="a" color={col('a')} lit={highlight === 'a'} />
-        <Finger x={154} y={140} len={62} angle={12} w={23} label="e" color={col('e')} lit={highlight === 'e'} />
-      </svg>
-      <figcaption><strong>Right hand</strong> (plays the strings): p thumb · i index · m middle · a ring · e little (flamenco). The letters come from the Spanish names: pulgar, índice, medio, anular.</figcaption>
+    <figure className="hand-fig" role="img" aria-label="Right hand, back of the hand facing you: thumb is p, index i, middle m, ring a, little finger e.">
+      <HandDrawing mirror highlight={highlight ? map[highlight] : undefined}
+        labels={{ 1: 'i', 2: 'm', 3: 'a', 4: 'e', t: 'p' }}
+        colors={{ 1: 'var(--ri)', 2: 'var(--rm)', 3: 'var(--ra)', 4: 'var(--re)', t: 'var(--rp)' }} />
+      <figcaption><strong>Right hand</strong> (plays the strings): p thumb · i index · m middle · a ring · e little (flamenco). The letters come from Spanish: pulgar, índice, medio, anular.</figcaption>
     </figure>
   );
 }
+
+const RASG_PALM = 'M76 46 C74 24 92 12 118 12 L170 13 C192 14 202 30 200 50 L196 84 C194 96 186 100 176 100 L92 100 C82 100 77 94 77 84 Z';
 
 const RASG: Record<string, { seq: string[]; label: string }> = {
   four: { seq: ['e', 'a', 'm', 'i'], label: '4-stroke rasgueado (e-a-m-i)' },
@@ -81,26 +104,39 @@ export function Rasgueado({ kind = 'four', chord = 'E' }: { kind?: 'four' | 'thr
   return (
     <figure className="rasg">
       <figcaption><strong>{r.label}</strong></figcaption>
-      <svg viewBox="0 0 260 170" role="img" aria-label={`${r.label}: the fingers flick out one after another, each striking the strings downwards.`}>
-        {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={20} x2={240} y1={120 + i * 7} y2={120 + i * 7} stroke={curF ? 'var(--f1)' : 'var(--string)'} strokeWidth={2.2 - i * 0.25} />)}
-        <path d="M60 30 q70 -24 140 0 q18 34 -4 60 q-66 18 -132 0 q-22 -28 -4 -60 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
+      <svg viewBox="0 0 260 185" role="img" aria-label={`${r.label}: the fingers flick out one after another, each striking the strings downwards.`}>
+        {/* guitar top and strings */}
+        <rect x={0} y={128} width={260} height={52} fill="var(--wood)" opacity={0.25} rx={6} />
+        {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={0} x2={260} y1={136 + i * 7} y2={136 + i * 7} stroke={curF ? 'var(--f1)' : 'var(--string)'} strokeWidth={2.4 - i * 0.3} />)}
+        {/* palm outline first, then fingers, then the palm on top: one clean silhouette */}
+        <path d={RASG_PALM} fill="var(--skin-edge)" stroke="var(--skin-edge)" strokeWidth={3} />
+        <g transform="translate(66 92) rotate(-28)"><path d={fingerPath(58, 24)} fill="var(--skin-edge)" stroke="var(--skin-edge)" strokeWidth={3} transform="rotate(180)" /><path d={fingerPath(58, 24)} fill="var(--skin)" transform="rotate(180)" /></g>
         {fingers.map((f, i) => {
-          const out = curF === f || (r.seq.length && step >= 0 && r.seq.slice(0, step).some(s => s[0] === f) && kind !== 'i');
-          const x = 92 + i * 26;
-          // curled: a short knuckle stub tucked under the palm; flicked: finger extended down onto the strings
-          const dur = `${120 / speed}ms`;
+          const out = curF === f || (kind !== 'i' && step >= 0 && r.seq.slice(0, step).some(s2 => s2[0] === f));
+          const x = 106 + i * 25;
+          const dur = `${110 / speed}ms`;
           return (
-            <g key={f}>
-              <rect x={x - 10} y={74} width={20} height={56} rx={10} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5}
-                style={{ transform: `scaleY(${out ? 1 : 0.32})`, transformOrigin: `${x}px 74px`, transformBox: 'view-box', transition: `transform ${dur} ease-out` }} />
-              <g style={{ transform: `translateY(${out ? 0 : -36}px)`, transition: `transform ${dur} ease-out` }}>
-                <circle cx={x} cy={120} r={9} fill={`var(--r${f})`} />
-                <text x={x} y={124} textAnchor="middle" fontSize={11} fontWeight={800} fill="#fff">{f}</text>
+            <g key={f} style={{ transform: `scaleY(${out ? 1 : 0.5})`, transformOrigin: `${x}px 84px`, transformBox: 'view-box', transition: `transform ${dur} ease-out` }}>
+              <g transform={`translate(${x} 84) rotate(180)`}>
+                <path d={fingerPath(64, 24)} fill="var(--skin-edge)" stroke="var(--skin-edge)" strokeWidth={3} />
+                <path d={fingerPath(64, 24)} fill="var(--skin)" />
+                <path d="M-8 -30 q8 3 16 0" stroke="var(--skin-edge)" strokeWidth={1.2} fill="none" opacity={0.5} />
               </g>
             </g>
           );
         })}
-        {curF && <text x={230} y={100} fontSize={28} fill="var(--f1)" fontWeight={800}>{r.seq[step].includes('↑') ? '↑' : '↓'}</text>}
+        <path d={RASG_PALM} fill="var(--skin)" />
+        {[0, 1, 2, 3].map(i => <path key={i} d={`M${98 + i * 25} 92 q8 -5 16 0`} stroke="var(--skin-edge)" strokeWidth={1.3} fill="none" opacity={0.55} />)}
+        {fingers.map((f, i) => {
+          const out = curF === f || (kind !== 'i' && step >= 0 && r.seq.slice(0, step).some(s2 => s2[0] === f));
+          const x = 106 + i * 25;
+          return (
+            <g key={`b${f}`} style={{ transform: `translateY(${out ? 36 : 0}px)`, transition: `transform ${110 / speed}ms ease-out` }}>
+              <Badge x={x} y={108} color={`var(--r${f})`} label={f} r={10} />
+            </g>
+          );
+        })}
+        {curF && <text x={232} y={118} fontSize={28} fill="var(--f1)" fontWeight={800}>{r.seq[step].includes('↑') ? '↑' : '↓'}</text>}
       </svg>
       <div className="row wrap center-row">
         <button className="btn primary small" onClick={() => { setRunning(v => !v); setStep(-1); }}>{running ? '■ Stop' : '▶ Play'}</button>

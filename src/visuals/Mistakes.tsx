@@ -1,95 +1,177 @@
 // Pictures of common beginner problems, each next to the fix.
 import { ReactNode } from 'react';
+import { Skin, jointFinger, FretWire, StringDot, ArtDefs, fingerPath } from './Art';
 
-export const MISTAKES: Record<string, { title: string; wrong: string; right: string }> = {
-  'far-from-fret': { title: 'Where to press', wrong: 'Pressing in the middle of the gap: the string buzzes against the fret.', right: 'Fingertip just behind the fret wire: clean note, much less pressure needed.' },
-  'finger-flat': { title: 'Finger lying flat', wrong: 'The soft pad of the finger lies across the next string and mutes it.', right: 'Arch the finger so only the tip touches its own string. The next string rings freely underneath.' },
-  thumb: { title: 'Thumb position', wrong: 'Thumb squeezing over the top of the neck pulls your fingers flat and tires the hand.', right: 'Thumb behind the neck, roughly behind your middle finger. Light pressure, like pinching a sponge.' },
-  wrist: { title: 'Wrist angle', wrong: 'A sharply bent wrist strains tendons and makes reaching harder.', right: 'Gentle, relaxed curve. Bring the elbow in a little and let the hand come round the neck.' },
-  'barre-roll': { title: 'Barre finger', wrong: 'Flat soft side of the finger: strings land in the creases of your joints and go dead.', right: 'Roll the index finger slightly onto its bony edge, close to the fret, and let your arm weight do the work.' },
-  'strum-arm': { title: 'Strumming arm', wrong: 'A stiff arm making big movements from the shoulder: tiring and uneven.', right: 'Swing from the elbow with a loose wrist, small movements, like shaking water off your hand.' },
-  nails: { title: 'Right-hand nails (nylon guitar)', wrong: 'Long or jagged nails catch and click on the strings.', right: 'Short and smooth, just past the fingertip, filed in a gentle curve. (Flamenco players keep them a little longer.)' },
+export const MISTAKES: Record<string, { title: string; wrong: string; right: string; view: string }> = {
+  'far-from-fret': { title: 'Where to press', view: 'Side view along one string', wrong: 'Pressing in the middle of the gap: the string buzzes against the fret.', right: 'Fingertip just behind the fret wire: a clean note with much less pressure.' },
+  'finger-flat': { title: 'Finger lying flat', view: 'Looking along the neck from the headstock', wrong: 'The soft pad of the finger lies on the next string and mutes it.', right: 'Arch the finger so only the tip touches its own string. The next string rings underneath.' },
+  thumb: { title: 'Thumb position', view: 'Looking along the neck', wrong: 'Thumb hooked over the top and palm squeezing the neck: the fingers flatten and the hand tires.', right: 'Thumb pad on the back of the neck, roughly behind your middle finger, with a gap under the palm.' },
+  wrist: { title: 'Wrist angle', view: 'Side view of the fretting arm', wrong: 'A sharply bent wrist strains the tendons and makes reaching harder.', right: 'A gentle, relaxed curve from forearm to hand. Bring the elbow in a little.' },
+  'barre-roll': { title: 'Barre finger', view: 'Looking down at the neck', wrong: 'Flat finger, away from the fret: strings in the creases of your joints go dead.', right: 'Index rolled slightly onto its bony edge, right behind the fret: every string rings.' },
+  'strum-arm': { title: 'Strumming arm', view: 'Front of the guitar', wrong: 'A stiff arm swinging from the shoulder: tiring and uneven.', right: 'Forearm resting on the guitar, swinging from the elbow with a loose wrist.' },
+  nails: { title: 'Right-hand nails (nylon guitar)', view: 'Side view of a plucking fingertip', wrong: 'Long or jagged nails catch and click on the strings.', right: 'Short and smooth, just past the fingertip. (Flamenco players keep them a little longer.)' },
 };
 
-function Panel({ ok, children, text }: { ok: boolean; children: ReactNode; text: string }) {
+const Bad = ({ x, y, text }: { x: number; y: number; text: string }) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--bad)" textAnchor="middle">{text}</text>;
+const Good = ({ x, y, text }: { x: number; y: number; text: string }) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--ok)" textAnchor="middle">{text}</text>;
+
+function FarFromFret({ ok }: { ok: boolean }) {
+  // side view: nut side on the left, body side on the right; frets at 50 and 175
+  const tipX = ok ? 160 : 108;
+  const f = jointFinger(tipX - 52, 6, 140, 46, 168, 40, 26, -1);
+  const tipY = 96;
   return (
-    <div className={`mk-panel ${ok ? 'ok' : 'bad'}`}>
-      <div className="mk-badge" aria-hidden>{ok ? '✓' : '✕'}</div>
-      <svg viewBox="0 0 220 140" aria-hidden>{children}</svg>
-      <p><strong>{ok ? 'Do this' : 'Not this'}:</strong> {text}</p>
-    </div>
+    <>
+      <rect x={0} y={104} width={220} height={22} fill="url(#board-wood)" />
+      <FretWire x={50} y={104} /><FretWire x={175} y={104} />
+      {ok
+        ? <path d={`M0 90 L${tipX} ${tipY} L175 96 L220 90`} stroke="var(--string)" strokeWidth={2.6} fill="none" />
+        : <path d={`M0 90 L${tipX} ${tipY + 4} L162 99 l4 -4 l4 5 l4 -4 L178 96 L220 90`} stroke="var(--bad)" strokeWidth={2.6} fill="none" />}
+      <Skin parts={f.parts} />
+      <path d={f.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
+      {!ok && <Bad x={190} y={80} text="bzzz" />}
+      <text x={175} y={140} fontSize={11} fill="var(--muted)" textAnchor="middle">fret wire</text>
+      <text x={50} y={140} fontSize={11} fill="var(--muted)" textAnchor="middle">fret wire</text>
+    </>
   );
 }
 
-const Board = () => <rect x={10} y={92} width={200} height={14} rx={3} fill="var(--wood)" />;
+function FingerFlat({ ok }: { ok: boolean }) {
+  const xs = [36, 66, 96, 126, 156, 186];
+  const ys = xs.map((_, i) => 92 - Math.sin((i / 5) * Math.PI) * 5);
+  // fretting the 4th string (x=96); the 3rd string (x=126) must ring
+  const f = ok ? jointFinger(40, 8, 120, 52, 172, 40, 24, -1) : jointFinger(36, 18, 118, 48, 128, 52, 26, -1);
+  return (
+    <>
+      <path d="M14 108 Q110 92 206 108 L206 126 Q110 110 14 126 Z" fill="url(#board-wood)" />
+      {xs.map((x, i) => <StringDot key={x} x={x} y={ys[i]} r={5.2 - i * 0.55} color={!ok && i === 3 ? 'var(--bad)' : undefined} />)}
+      <Skin parts={f.parts} />
+      <path d={f.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
+      {ok ? <Good x={146} y={66} text="rings ✓" /> : <Bad x={168} y={66} text="muted" />}
+      {['E', 'A', 'D', 'G', 'B', 'e'].map((n, i) => <text key={n + i} x={xs[i]} y={142} fontSize={10} fill="var(--muted)" textAnchor="middle">{n}</text>)}
+    </>
+  );
+}
 
-function drawing(id: string, ok: boolean) {
-  switch (id) {
-    case 'far-from-fret': {
-      const fx = ok ? 150 : 105;
-      return (<>
-        <Board />
-        {[50, 160].map(x => <rect key={x} x={x} y={84} width={6} height={10} rx={2} fill="var(--fret)" />)}
-        {ok ? <path d={`M10 82 L${fx} 89 L210 82`} stroke="var(--string)" strokeWidth={2.5} fill="none" />
-          : <path d={`M10 82 L56 83 l6 -3 l6 4 l6 -3 l6 4 L${fx} 89 L210 82`} stroke="var(--bad)" strokeWidth={2.5} fill="none" />}
-        <path d={`M${fx - 18} 10 q-6 60 18 78 q16 -4 14 -40 q0 -30 -6 -38 z`} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-        <text x={160} y={126} fontSize={11} fill="var(--muted)" textAnchor="middle">fret wire</text>
-        {!ok && <text x={62} y={70} fontSize={11} fill="var(--bad)" fontWeight={700}>bzzz</text>}
-      </>);
-    }
-    case 'finger-flat': {
-      const strings = [40, 70, 100, 130, 160, 190];
-      return (<>
-        <path d="M20 112 q90 -18 180 0 l0 14 q-90 -18 -180 0 z" fill="var(--wood)" />
-        {strings.map((x, i) => <circle key={x} cx={x} cy={98 - Math.sin((i / 5) * Math.PI) * 4} r={4 + (5 - i) * 0.5} fill={!ok && i === 3 ? 'var(--bad)' : 'var(--string)'} />)}
-        {ok
-          ? <path d="M76 20 q10 40 18 70 q4 6 10 0 q-2 -40 6 -74 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-          : <path d="M66 22 q14 44 22 66 q20 10 46 4 q-10 -20 -28 -24 q-10 -30 -6 -50 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />}
-        <text x={110} y={136} fontSize={11} fill="var(--muted)" textAnchor="middle">looking along the neck</text>
-        {!ok && <text x={140} y={84} fontSize={11} fill="var(--bad)" fontWeight={700}>muted</text>}
-      </>);
-    }
-    case 'thumb':
-      return (<>
-        <ellipse cx={110} cy={70} rx={52} ry={34} fill="var(--wood)" />
-        <rect x={58} y={36} width={104} height={10} rx={3} fill="var(--fret)" />
-        <text x={110} y={30} fontSize={11} fill="var(--muted)" textAnchor="middle">strings / fingerboard</text>
-        {ok ? <ellipse cx={110} cy={106} rx={16} ry={10} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-          : <path d="M150 20 q30 10 22 40 q-8 10 -18 0 q4 -20 -10 -30 z" fill="var(--skin)" stroke="var(--bad)" strokeWidth={2} />}
-        <text x={110} y={132} fontSize={11} fill="var(--muted)" textAnchor="middle">{ok ? 'thumb pad behind the neck' : 'thumb clamped over the top'}</text>
-      </>);
-    case 'wrist':
-      return (<>
-        <rect x={150} y={20} width={22} height={110} rx={4} fill="var(--wood)" />
-        {ok ? <path d="M10 120 q60 -10 110 -40 q20 -12 34 -16" stroke="var(--skin-edge)" strokeWidth={22} fill="none" strokeLinecap="round" />
-          : <path d="M10 120 q70 -4 100 -10 q30 -6 44 -56" stroke="var(--bad)" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.8} />}
-        <text x={60} y={30} fontSize={11} fill="var(--muted)">{ok ? 'gentle curve' : 'sharp bend'}</text>
-      </>);
-    case 'barre-roll': {
-      return (<>
-        <Board />
-        {[30, 60, 90, 120, 150, 180].map((x, i) => <circle key={x} cx={x} cy={88} r={4 + (5 - i) * 0.4} fill={!ok && (i === 2 || i === 4) ? 'var(--bad)' : 'var(--string)'} />)}
-        <rect x={18} y={ok ? 72 : 70} width={178} height={ok ? 14 : 18} rx={8} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-        {!ok && [84, 146].map(x => <path key={x} d={`M${x} 70 q6 10 12 0`} fill="var(--bg)" stroke="var(--skin-edge)" />)}
-        <text x={110} y={130} fontSize={11} fill="var(--muted)" textAnchor="middle">{ok ? 'bony edge, close to the fret' : 'strings sit in the joint creases'}</text>
-      </>);
-    }
-    case 'strum-arm':
-      return (<>
-        <circle cx={40} cy={30} r={10} fill="var(--muted)" />
-        {ok ? <><path d="M40 40 L80 80 L120 70" stroke="var(--skin-edge)" strokeWidth={10} fill="none" strokeLinecap="round" /><path d="M128 50 q14 20 0 40" stroke="var(--ok)" strokeWidth={3} fill="none" markerEnd="url(#a)" /></>
-          : <><path d="M40 40 L70 100 L110 120" stroke="var(--bad)" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.8} /><path d="M90 20 q90 50 0 120" stroke="var(--bad)" strokeWidth={3} fill="none" /></>}
-        <text x={150} y={130} fontSize={11} fill="var(--muted)">{ok ? 'small, loose' : 'big, stiff'}</text>
-      </>);
-    case 'nails':
-      return (<>
-        <path d="M30 60 q120 -30 160 10 q6 20 -10 30 q-60 10 -150 10 z" fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={1.5} />
-        {ok ? <path d="M186 64 q10 8 4 22 q-6 -2 -6 -10 z" fill="#fff" stroke="var(--skin-edge)" />
-          : <path d="M186 64 q30 6 24 30 l-6 -4 l-4 6 q-6 -8 -12 -18 z" fill="#fff" stroke="var(--bad)" strokeWidth={1.5} />}
-        <text x={110} y={130} fontSize={11} fill="var(--muted)" textAnchor="middle">{ok ? 'short and smooth' : 'long and jagged'}</text>
-      </>);
-    default: return null;
-  }
+function Thumb({ ok }: { ok: boolean }) {
+  // looking along the neck: fingerboard on the left (towards the strings), back of the neck on the right
+  const neck = 'M70 30 L94 30 C140 30 160 52 160 80 C160 108 140 130 94 130 L70 130 Z';
+  const finger = jointFinger(48, 6, 160, 26, 120, 34, 22, 1);
+  const thumb = ok ? { d: fingerPath(46, 24), transform: 'translate(200 112) rotate(-72)' } : { d: fingerPath(50, 24), transform: 'translate(184 64) rotate(-38)' };
+  const palm = ok ? 'M30 20 C10 70 40 140 110 148 C160 152 196 132 204 116' : 'M30 20 C14 70 40 136 104 140 C150 140 168 122 172 92 L186 62';
+  return (
+    <>
+      <rect x={58} y={30} width={12} height={100} rx={2} fill="url(#board-wood)" />
+      <path d={neck} fill="url(#neck-wood)" />
+      {[38, 52, 66, 80, 94, 108, 122].slice(0, 6).map((y, i) => <StringDot key={y} x={52} y={y + 8} r={4 - i * 0.35} />)}
+      <path d={palm} stroke="var(--skin-edge)" strokeWidth={30} fill="none" strokeLinecap="round" />
+      <Skin parts={[...finger.parts, thumb]} />
+      <path d={palm} stroke="var(--skin)" strokeWidth={26} fill="none" strokeLinecap="round" />
+      <path d={finger.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
+      {ok ? <Good x={176} y={22} text="gap under palm" /> : <Bad x={130} y={18} text="thumb over the top" />}
+    </>
+  );
+}
+
+function Wrist({ ok }: { ok: boolean }) {
+  const arm = ok ? 'M6 132 Q80 110 136 74' : 'M6 132 Q70 128 120 122 Q140 118 146 84';
+  const hand = ok ? 'M136 74 Q150 64 166 52' : 'M146 84 Q150 66 168 54';
+  return (
+    <>
+      <rect x={172} y={10} width={26} height={130} rx={4} fill="url(#neck-wood)" />
+      <rect x={168} y={10} width={6} height={130} fill="url(#board-wood)" />
+      <path d={arm} stroke="var(--skin-edge)" strokeWidth={30} fill="none" strokeLinecap="round" />
+      <path d={hand} stroke="var(--skin-edge)" strokeWidth={24} fill="none" strokeLinecap="round" />
+      <path d={arm} stroke="var(--skin)" strokeWidth={26} fill="none" strokeLinecap="round" />
+      <path d={hand} stroke="var(--skin)" strokeWidth={20} fill="none" strokeLinecap="round" />
+      {!ok && <circle cx={142} cy={110} r={16} fill="none" stroke="var(--bad)" strokeWidth={2.5} strokeDasharray="4 3" />}
+      {ok ? <Good x={70} y={92} text="straight line" /> : <Bad x={100} y={100} text="sharp bend" />}
+    </>
+  );
+}
+
+function Barre({ ok }: { ok: boolean }) {
+  // looking down at the neck: strings run left-right, fret wire vertical at x=150
+  const ys = [32, 50, 68, 86, 104, 122];
+  const fx = ok ? 138 : 112;
+  const dead = ok ? [] : [1, 3];
+  return (
+    <>
+      <rect x={0} y={20} width={220} height={114} fill="url(#board-wood)" />
+      <rect x={148} y={20} width={5} height={114} fill="url(#fret-metal)" />
+      {ys.map((y, i) => <line key={y} x1={0} x2={220} y1={y} y2={y} stroke={dead.includes(i) ? 'var(--bad)' : '#d9d6cf'} strokeWidth={2.6 - i * 0.25} />)}
+      <Skin parts={[{ d: `M${fx - (ok ? 9 : 12)} 4 L${fx + (ok ? 9 : 12)} 4 L${fx + (ok ? 9 : 12)} 140 Q${fx} 150 ${fx - (ok ? 9 : 12)} 140 Z` }]} />
+      {[44, 96].map(y => <path key={y} d={`M${fx - 9} ${y + 6} q9 -3 18 0`} stroke="var(--skin-edge)" strokeWidth={1.5} fill="none" opacity={0.7} />)}
+      {!ok && dead.map(i => <Bad key={i} x={60} y={ys[i] + 4} text="✕ dead" />)}
+      {ok && <Good x={60} y={14} text="all six ring" />}
+      <text x={150} y={150} fontSize={10} fill="var(--muted)" textAnchor="middle">fret wire</text>
+    </>
+  );
+}
+
+function StrumArm({ ok }: { ok: boolean }) {
+  const body = 'M40 80 C40 40 70 20 100 30 C120 36 128 28 150 26 C190 22 210 50 210 84 C210 120 186 146 150 142 C128 140 120 132 100 138 C70 146 40 120 40 80 Z';
+  return (
+    <>
+      <path d={body} fill="url(#top-wood)" stroke="#6b3d1f" strokeWidth={3} />
+      <circle cx={104} cy={84} r={18} fill="#2a190d" />
+      {[0, 1, 2, 3, 4, 5].map(i => <line key={i} x1={0} x2={150} y1={76 + i * 3.4} y2={76 + i * 3.4} stroke="#ece6d6" strokeWidth={0.9} />)}
+      {ok ? (
+        <>
+          <path d="M214 30 Q170 44 132 70" stroke="var(--skin-edge)" strokeWidth={26} fill="none" strokeLinecap="round" />
+          <path d="M214 30 Q170 44 132 70" stroke="var(--skin)" strokeWidth={22} fill="none" strokeLinecap="round" />
+          <circle cx={126} cy={78} r={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={2} />
+          <path d="M110 58 q-12 22 0 44" stroke="var(--ok)" strokeWidth={3} fill="none" markerEnd="url(#mk-arr-ok)" />
+          <Good x={58} y={148} text="small, from the elbow" />
+        </>
+      ) : (
+        <>
+          <path d="M200 4 L150 30 L128 64" stroke="var(--skin-edge)" strokeWidth={26} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M200 4 L150 30 L128 64" stroke="var(--skin)" strokeWidth={22} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={124} cy={74} r={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={2} />
+          <path d="M98 14 Q40 84 98 150" stroke="var(--bad)" strokeWidth={3} fill="none" markerEnd="url(#mk-arr-bad)" />
+          <Bad x={170} y={148} text="big, stiff swing" />
+        </>
+      )}
+    </>
+  );
+}
+
+function Nails({ ok }: { ok: boolean }) {
+  const f = jointFinger(30, 20, 120, 70, 150, 50, 30, -1);
+  return (
+    <>
+      <StringDot x={f.tip.x + 6} y={f.tip.y + 14} r={6} />
+      <line x1={0} x2={220} y1={f.tip.y + 14} y2={f.tip.y + 14} stroke="var(--string)" strokeWidth={1} opacity={0.3} />
+      <Skin parts={f.parts} />
+      {ok
+        ? <path d={f.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
+        : <path d={`${f.nail} M${f.tip.x - 4} ${f.tip.y - 10} l22 6 l-6 6 l6 6 l-22 -4 Z`} fill="var(--nail)" stroke="var(--bad)" strokeWidth={1.2} />}
+      {ok ? <Good x={160} y={40} text="short & smooth" /> : <Bad x={160} y={40} text="long & jagged" />}
+    </>
+  );
+}
+
+const DRAW: Record<string, (p: { ok: boolean }) => ReactNode> = {
+  'far-from-fret': FarFromFret, 'finger-flat': FingerFlat, thumb: Thumb, wrist: Wrist, 'barre-roll': Barre, 'strum-arm': StrumArm, nails: Nails,
+};
+
+function Panel({ ok, id, text }: { ok: boolean; id: string; text: string }) {
+  const D = DRAW[id];
+  return (
+    <div className={`mk-panel ${ok ? 'ok' : 'bad'}`}>
+      <div className="mk-badge" aria-hidden>{ok ? '✓' : '✕'}</div>
+      <svg viewBox="0 0 220 152" aria-hidden>
+        <ArtDefs />
+        <defs>
+          <marker id="mk-arr-ok" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--ok)" /></marker>
+          <marker id="mk-arr-bad" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--bad)" /></marker>
+        </defs>
+        <D ok={ok} />
+      </svg>
+      <p><strong>{ok ? 'Do this' : 'Not this'}:</strong> {text}</p>
+    </div>
+  );
 }
 
 export function MistakeVisual({ id }: { id: string }) {
@@ -97,10 +179,10 @@ export function MistakeVisual({ id }: { id: string }) {
   if (!m) return null;
   return (
     <figure className="mistake">
-      <figcaption>{m.title}</figcaption>
+      <figcaption>{m.title} <span className="muted small">· {m.view}</span></figcaption>
       <div className="mk-pair">
-        <Panel ok={false} text={m.wrong}>{drawing(id, false)}</Panel>
-        <Panel ok text={m.right}>{drawing(id, true)}</Panel>
+        <Panel ok={false} id={id} text={m.wrong} />
+        <Panel ok id={id} text={m.right} />
       </div>
     </figure>
   );
