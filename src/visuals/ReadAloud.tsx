@@ -158,6 +158,22 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
     return () => root.removeEventListener('click', onClick);
   }); // re-bind each render so it sees the latest settings
 
+  // keyboard: Space pauses/resumes, Esc stops (only while the reader is on, and not while typing)
+  useEffect(() => {
+    if (status === 'idle') return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('input, textarea, select, [contenteditable="true"]')) return;
+      if (e.key === 'Escape') { stop(); return; }
+      if (e.key === ' ' && !t.closest('button, a')) {
+        e.preventDefault();
+        if (status === 'playing') pause(); else if (!micOn) resume();
+      }
+    };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  });
+
   // apply a new speed or voice straight away
   useEffect(() => { if (status === 'playing') speakFrom(pos.current.u, pos.current.c); }, [rate, voiceName]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -186,7 +202,7 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
           {voices.map(v => <option key={v.name} value={v.name}>{v.name.replace(/\s*\(.*\)$/, '')} ({v.lang})</option>)}
         </select>
       </label>}
-      {status !== 'idle' && <span className="small muted ra-hint">Tip: click any paragraph to jump to it.</span>}
+      {status !== 'idle' && <span className="small muted ra-hint">Click any paragraph to jump to it · <kbd>Space</kbd> pause/resume · <kbd>Esc</kbd> stop</span>}
     </div>
   );
 }

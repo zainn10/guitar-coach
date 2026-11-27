@@ -6,13 +6,17 @@ import { AskClaude } from '../ask/AskClaude';
 import { Card, useStore } from '../ui';
 import { store } from '../storage/store';
 import { COURSE_ORDER } from '../content';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ReadAloud } from '../visuals/ReadAloud';
 
 export function Course() {
   const d = useStore();
   const stages = stageProgress(d);
   const allDone = stages.every(s => s.done);
+  // only the stage you're working on is open; tap any other stage to look inside
+  const cur = Math.max(0, stages.findIndex(s => !s.done));
+  const [openStages, setOpenStages] = useState<number[]>([cur]);
+  const toggle = (i: number) => setOpenStages(o => o.includes(i) ? o.filter(x => x !== i) : [...o, i]);
   return (
     <div className="stack">
       <header className="page-head">
@@ -22,17 +26,18 @@ export function Course() {
       {STAGES.map((st, si) => {
         const p = stages[si];
         const stageLocked = si > 0 && !stages[si - 1].done && !st.lessons.some(id => lessonStatus(d, id) !== 'locked');
+        const isOpen = openStages.includes(si);
         return (
-          <section key={st.n} className={`stage-card ${stageLocked ? 'locked' : ''}`}>
-            <div className="stage-head">
-              <span className="stage-num">{st.n}</span>
+          <section key={st.n} className={`stage-card ${stageLocked ? 'locked' : ''} ${si === cur ? 'current' : ''}`}>
+            <button className="stage-head stage-toggle" onClick={() => toggle(si)} aria-expanded={isOpen}>
+              <span className="stage-num">{p.done ? '✓' : st.n}</span>
               <div>
-                <h2>{st.title}</h2>
+                <h2>{st.title}{si === cur && <span className="now-tag">You're here</span>}</h2>
                 <p className="muted">{st.intro}</p>
               </div>
-              <span className="small muted">{p.passed}/{p.total}</span>
-            </div>
-            <ol className="lesson-list">
+              <span className="small muted stage-count">{p.passed}/{p.total} <span aria-hidden>{isOpen ? '▴' : '▾'}</span></span>
+            </button>
+            {isOpen && <ol className="lesson-list">
               {st.lessons.map(id => {
                 const l = lessonById(id)!;
                 const s = lessonStatus(d, id);
@@ -44,7 +49,7 @@ export function Course() {
                   </li>
                 );
               })}
-            </ol>
+            </ol>}
           </section>
         );
       })}
@@ -96,6 +101,7 @@ export function LessonPage({ id }: { id: string }) {
         <p className="eyebrow">{l.flamenco ? 'Flamenco corner · ' : ''}Stage {l.stage} · about {l.minutes} min{status === 'passed' ? ' · ✓ passed' : ''}</p>
         <h1>{l.title}</h1>
         {l.summary && <p className="lead">{l.summary}</p>}
+        {l.checks.length > 0 && status !== 'passed' && <button className="btn link jump-check" data-noread onClick={() => document.getElementById('lesson-check')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Jump to the check ↓</button>}
       </header>
       <ReadAloud key={id} target={readRef} />
       <LessonBody text={l.body} />

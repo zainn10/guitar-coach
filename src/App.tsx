@@ -42,7 +42,13 @@ export function App() {
     return () => removeEventListener('hashchange', on);
   }, []);
   // Leaving a page always switches the microphone off.
-  useEffect(() => { stopMic(); }, [route.tab, route.sub]);
+  useEffect(() => { stopMic(); window.scrollTo(0, 0); }, [route.tab, route.sub]);
+  // Esc switches the microphone off from anywhere (hands stay on the guitar)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') stopMic(); };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  }, []);
   useEffect(() => {
     const root = document.documentElement;
     if (settings.theme === 'system') root.removeAttribute('data-theme');

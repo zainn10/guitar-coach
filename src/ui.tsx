@@ -110,5 +110,5 @@ export function MicIcon({ on = false }: { on?: boolean }) {
 export function StopListening({ label = 'Stop listening' }: { label?: string }) {
   const { running } = useEngineState();
   if (!running) return null;
-  return <button className="btn stop" onClick={stopMic}><MicIcon on /> {label}</button>;
+  return <button className="btn stop" onClick={stopMic} title="Shortcut: Esc"><MicIcon on /> {label} <kbd className="kbd-in-btn">Esc</kbd></button>;
 }

@@ -2,7 +2,7 @@
 // before the next lesson unlocks. When a check falls short, we say exactly what,
 // link the right help topic, and the weak item comes back in your sessions.
 import { useEffect, useRef, useState } from 'react';
-import { Check, Lesson, songById, THRESHOLDS } from '../content';
+import { Check, Lesson, songById, THRESHOLDS, COURSE_ORDER, lessonById } from '../content';
 import { engine } from '../audio/engine';
 import { detectPitch, tunerReading } from '../audio/tuner';
 import { useStrums } from '../audio/useStrums';
@@ -109,7 +109,10 @@ function TuningCheck({ onDone }: { onDone: Done }) {
 function ChordMastery({ check, onDone }: { check: Extract<Check, { type: 'chord' }>; onDone: Done }) {
   const { attempts } = useStore();
   const { clean, outOf } = THRESHOLDS.mastery.cleanChord;
-  const m = masteryState(attempts[check.chord], clean, outOf);
+  // Only strums made during THIS check count, never older ones from practice or earlier tries;
+  // otherwise opening the check could pass (or fail) you before you've played anything.
+  const since = useRef(Date.now());
+  const m = masteryState((attempts[check.chord] ?? []).filter(a => a.t >= since.current), clean, outOf);
   const reported = useRef(false);
   useEffect(() => {
     if (m.passed && !reported.current) { reported.current = true; stopMic(); onDone(true, 1, []); }
@@ -293,7 +296,7 @@ export function LessonChecks({ lesson }: { lesson: Lesson }) {
   const [feedback, setFeedback] = useState<Record<number, { passed: boolean; shortfall: string[]; troubles: string[] }>>({});
   if (!lesson.checks.length) return null;
   return (
-    <section className="lesson-checks" aria-label="Mastery checks">
+    <section className="lesson-checks" id="lesson-check" aria-label="Mastery checks">
       <h2>Mastery check</h2>
       <p className="small muted">Pass {lesson.checks.length > 1 ? 'all of these' : 'this'} to unlock the next lesson. You can always come back.</p>
       {lesson.checks.map((c, i) => {
@@ -329,7 +332,22 @@ export function LessonChecks({ lesson }: { lesson: Lesson }) {
           </div>
         );
       })}
-      {lp?.status === 'passed' && <p className="note ok lesson-passed"><strong>Lesson passed.</strong> The next lesson is unlocked.</p>}
+      {lp?.status === 'passed' && <NextUp lessonId={lesson.id} />}
     </section>
+  );
+}
+
+/** Shown once a lesson is passed: straight on to the next one. */
+function NextUp({ lessonId }: { lessonId: string }) {
+  const i = COURSE_ORDER.indexOf(lessonId);
+  const next = i >= 0 ? lessonById(COURSE_ORDER[i + 1]) : undefined;
+  return (
+    <div className="note ok lesson-passed">
+      <p><strong>Lesson passed!</strong> {next ? 'The next lesson is unlocked.' : 'That was the last lesson of the course.'}</p>
+      <div className="row wrap">
+        {next && <a className="btn primary" href={`#lesson/${next.id}`}>Next lesson: {next.title} →</a>}
+        <a className="btn" href="#today">Practise on the Today page</a>
+      </div>
+    </div>
   );
 }

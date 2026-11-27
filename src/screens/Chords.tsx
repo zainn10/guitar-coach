@@ -18,6 +18,10 @@ export function Chords({ sub }: { sub?: string }) {
   const known = knownChords(d);
   const taught = CHORDS.filter(c => LESSONS.some(l => l.chords.includes(c.id)));
   if (sub) return <ChordDetail id={sub} />;
+  // learned and current chords first, then the rest in the order the course teaches them
+  const stageOf = (id: string) => LESSONS.find(l => l.chords.includes(id))?.stage ?? 9;
+  const orderOf = (id: string) => { const i = LESSONS.findIndex(l => l.chords.includes(id)); return i < 0 ? 999 : i; };
+  const rank = (id: string) => (soFar.includes(id) ? 0 : 10000) + stageOf(id) * 1000 + orderOf(id);
   return (
     <div className="stack">
       <header className="page-head">
@@ -30,7 +34,7 @@ export function Chords({ sub }: { sub?: string }) {
       </header>
       <FingerLegend />
       <div className="chord-grid">
-        {taught.map(c => {
+        {[...taught].sort((a, b) => rank(a.id) - rank(b.id)).map(c => {
           const open = soFar.includes(c.id);
           const lesson = LESSONS.find(l => l.chords.includes(c.id));
           return open ? (
@@ -39,7 +43,7 @@ export function Chords({ sub }: { sub?: string }) {
               <span className="small">{known.includes(c.id) ? '✓ learned' : 'learning now'}</span>
             </a>
           ) : (
-            <div key={c.id} className="chord-tile locked"><span className="chord-id">{c.id}</span><span className="small muted">🔒 Stage {lesson?.stage}</span></div>
+            <div key={c.id} className="chord-tile locked"><span className="chord-id">{c.name}</span><span className="small muted">🔒 Stage {lesson?.stage}</span></div>
           );
         })}
       </div>

@@ -75,11 +75,14 @@ export function Setup() {
         </div>
       </Card>
 
-      <SyncCard />
-
       <BackupCard />
 
+      <details className="more-settings">
+        <summary>More settings: Ask Claude, phone sync, diagnostics</summary>
+        <div className="stack">
       <ClaudeKeyCard />
+
+      <SyncCard />
 
       <Card title="Diagnostics">
         <p>Record short examples, check what the app hears, and save sound files to send for tuning the detection.</p>
@@ -94,6 +97,8 @@ export function Setup() {
           <li>A quiet room helps a lot. Keep the laptop about an arm's length from the guitar's sound hole.</li>
         </ul>
       </Card>
+        </div>
+      </details>
     </div>
   );
 }

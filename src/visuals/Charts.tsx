@@ -4,7 +4,7 @@ import { useState } from 'react';
 export interface Point { x: string; y: number; label?: string }
 
 function niceMax(v: number) {
-  if (v <= 0) return 1;
+  if (v <= 4) return 4;
   const p = Math.pow(10, Math.floor(Math.log10(v)));
   for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p;
   return 10 * p;

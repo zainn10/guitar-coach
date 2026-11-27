@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { TunerPanel } from './Tuner';
 import { buildSession, nextOpenBlock, rankedItems, Block, BlockKind } from '../engine/session';
 import { currentLesson, stageProgress, knownChords } from '../engine/course';
 import { store, today } from '../storage/store';
@@ -24,6 +25,7 @@ const LENGTHS: { m: number | 'open'; label: string; desc: string }[] = [
   { m: 'open', label: 'Open-ended', desc: 'One block at a time until you stop' },
 ];
 
+const KIND_LABEL: Record<BlockKind, string> = { warmup: 'Warm-up', weak: 'Weak spot', review: 'Review', new: 'New skill', drill: 'Change drill', song: 'Song', quiz: 'Quiz', technique: 'Technique', ear: 'Ear training', free: 'Free play', break: 'Break', chord: 'Chord' };
 const KIND_ICON: Record<BlockKind, string> = { warmup: '⏱', weak: '!', review: '↺', new: '★', drill: '⇄', song: '♫', quiz: '?', technique: '≋', ear: '♪', free: '☺', break: '☕', chord: '✋' };
 
 export function Today() {
@@ -144,7 +146,7 @@ function SessionRunner() {
     <div className="session">
       <div className="session-plan" aria-label="Session plan">
         {s.blocks.map((b, i) => (
-          <span key={b.id} className={`sp-step ${b.done ? 'done' : i === idx ? 'now' : ''}`} title={b.title}>{KIND_ICON[b.kind]}</span>
+          <span key={b.id} className={`sp-step ${b.done ? 'done' : i === idx ? 'now' : ''}`} title={b.title}><span aria-hidden>{b.done ? '✓' : KIND_ICON[b.kind]}</span> {KIND_LABEL[b.kind]}</span>
         ))}
         <span className="small muted">{s.minutes === 'open' ? `${done} min so far` : `${done} of ~${total} min`}</span>
         <button className="btn link" onClick={() => { stopMic(); store.setSession(undefined); }}>End session</button>
@@ -170,7 +172,8 @@ function BlockBody({ block, onDone }: { block: Block; onDone: () => void }) {
     case 'warmup':
       return (
         <div className="stack">
-          <p>1. Quick tune: open the <a href="#tuner">Tuner</a> and check all six strings (30 seconds).</p>
+          <p>1. Quick tune: check all six strings (30 seconds).</p>
+          <details className="inline-tuner"><summary>Open the tuner here</summary><TunerPanel /></details>
           <p>2. Finger warm-up: each finger on its own fret, fingertips just behind the fret wire. Slow and even with the click.</p>
           <TabView title="1-2-3-4 warm-up (one finger per fret)" text={`e|--------------------------------1-2-3-4|\nB|--------------------------1-2-3-4------|\nG|--------------------1-2-3-4------------|\nD|--------------1-2-3-4------------------|\nA|--------1-2-3-4------------------------|\nE|--1-2-3-4------------------------------|`} bpm={stage < 3 ? 60 : 80} />
           <Metronome initialBpm={stage < 3 ? 60 : 80} compact />

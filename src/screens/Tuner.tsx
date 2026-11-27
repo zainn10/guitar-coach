@@ -18,6 +18,11 @@ export function Tuner() {
   );
 }
 
+/** The tuner, ready to drop into another page (e.g. a practice session's warm-up). */
+export function TunerPanel() {
+  return <MicGate why="The tuner listens to each string through the microphone."><TunerBody /></MicGate>;
+}
+
 function TunerBody() {
   useStore();
   const [only, setOnly] = useState<number | undefined>(undefined);
