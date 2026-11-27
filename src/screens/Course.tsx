@@ -6,7 +6,8 @@ import { AskClaude } from '../ask/AskClaude';
 import { Card, useStore } from '../ui';
 import { store } from '../storage/store';
 import { COURSE_ORDER } from '../content';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { ReadAloud } from '../visuals/ReadAloud';
 
 export function Course() {
   const d = useStore();
@@ -74,6 +75,7 @@ export function PathChooser({ enabled }: { enabled: boolean }) {
 export function LessonPage({ id }: { id: string }) {
   const d = useStore();
   const l = lessonById(id);
+  const readRef = useRef<HTMLDivElement>(null);
   useEffect(() => { if (l && lessonStatus(store.get(), id) !== 'locked') store.openLesson(id); window.scrollTo(0, 0); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!l) return <p>Lesson not found. <a href="#course">Back to the course</a></p>;
   const status = lessonStatus(d, id);
@@ -89,12 +91,15 @@ export function LessonPage({ id }: { id: string }) {
   return (
     <div className="stack lesson-page">
       <a className="back-link" href="#course">← Course · Stage {st.n}: {st.title}</a>
+      <div ref={readRef} className="stack">
       <header className="page-head">
         <p className="eyebrow">{l.flamenco ? 'Flamenco corner · ' : ''}Stage {l.stage} · about {l.minutes} min{status === 'passed' ? ' · ✓ passed' : ''}</p>
         <h1>{l.title}</h1>
         {l.summary && <p className="lead">{l.summary}</p>}
       </header>
+      <ReadAloud key={id} target={readRef} />
       <LessonBody text={l.body} />
+      </div>
       <AskClaude context={`Lesson "${l.title}" (Stage ${l.stage}). ${l.summary}`} label="Stuck? Ask Claude about this lesson" />
       <LessonChecks lesson={l} />
       <nav className="lesson-nav">

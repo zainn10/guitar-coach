@@ -542,3 +542,21 @@ a.btn.primary { color: var(--accent-fg); }
 :root { --nail: #f6e3d6; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --nail: #ecd3c2; } }
 :root[data-theme="dark"] { --nail: #ecd3c2; }
+
+/* Read aloud */
+.read-aloud { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 0; }
+.read-aloud.active {
+  position: sticky; top: 8px; z-index: 20; padding: 8px 12px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.read-aloud .ra-opt { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.read-aloud .ra-opt select { font: inherit; padding: 3px 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); max-width: 220px; }
+.read-aloud .ra-pos { min-width: 3.5em; }
+.read-aloud .ra-hint { flex-basis: 100%; }
+.read-aloud:not(.active) .ra-opt { opacity: 0.8; }
+.reading {
+  background: color-mix(in srgb, var(--f1) 16%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--f1) 16%, transparent);
+  border-radius: 6px; transition: background 0.25s, box-shadow 0.25s;
+}
+@media (prefers-reduced-motion: reduce) { .reading { transition: none; } }

@@ -1,5 +1,6 @@
 // "Stuck on something?" — the trouble-shooter.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { ReadAloud } from '../visuals/ReadAloud';
 import troublesJson from '../../content/troubles.json';
 import { MistakeVisual } from '../visuals/Mistakes';
 import { Card } from '../ui';
@@ -29,10 +30,12 @@ export function TroubleLink({ id }: { id: string }) {
 }
 
 export function TroubleArticle({ t }: { t: Trouble }) {
+  const ref = useRef<HTMLElement>(null);
   return (
-    <article className="trouble-article">
+    <article className="trouble-article" ref={ref}>
       <h2>{t.title}</h2>
       <p className="lead">{t.symptom}</p>
+      <ReadAloud key={t.id} target={ref} what="help topic" />
       <p><strong>Why it happens:</strong> {t.why}</p>
       {t.visual && <div className="lesson-visual"><MistakeVisual id={t.visual} /></div>}
       <h3>How to fix it</h3>

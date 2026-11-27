@@ -16,6 +16,9 @@ export interface Settings {
   sensitivity: Sensitivity;
   /** Optional: your own Anthropic API key for the "Ask Claude" button. */
   claudeKey?: string;
+  /** Read-aloud speed (1 = normal) and chosen voice. */
+  speechRate?: number;
+  speechVoice?: string;
 }
 
 export interface ChordAttempt { t: number; verdict: ChordVerdict; issues: string[] }
