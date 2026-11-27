@@ -158,6 +158,7 @@ function NotesCheck({ check, onDone }: { check: Extract<Check, { type: 'notes' }
   const [result, setResult] = useState<ReturnType<typeof analyseNoteSequence> | null>(null);
   const [listening, setListening] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [ignored, setIgnored] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const frameRef = useRef<number[]>([]);
   const finish = async (f: number[]) => {
@@ -178,8 +179,8 @@ function NotesCheck({ check, onDone }: { check: Extract<Check, { type: 'notes' }
     frameRef.current = next; setFrames(next);
     if (timer.current) clearTimeout(timer.current);
     if (next.length >= expected.length + 1) finish(next);
-    else timer.current = setTimeout(() => finish(next), 2500);
-  }, listening, undefined, 'pluck');
+    else timer.current = setTimeout(() => finish(next), 4000);
+  }, listening, () => setIgnored(n => n + 1), 'pluck');
   const notesText = check.notes.map(n => `${STRING_SHORT[n.string]}${n.fret}`).join(' ');
   return (
     <div className="notes-check">
@@ -193,10 +194,10 @@ function NotesCheck({ check, onDone }: { check: Extract<Check, { type: 'notes' }
       <div className="row wrap">
         <button className="btn small" onClick={() => expected.forEach((m, i) => setTimeout(() => playNote(m, undefined, 0.3, 0.6), i * 450))}>▶ Hear it</button>
         {!listening
-          ? <button className="btn primary" onClick={async () => { setErr(null); setResult(null); frameRef.current = []; setFrames([]); try { await startMic(); setListening(true); } catch (e) { setErr(micErrorText(e)); } }}>{result ? 'Try again' : 'Start listening'}</button>
+          ? <button className="btn primary" onClick={async () => { setErr(null); setResult(null); setIgnored(0); frameRef.current = []; setFrames([]); try { await startMic(); setListening(true); } catch (e) { setErr(micErrorText(e)); } }}>{result ? 'Try again' : 'Start listening'}</button>
           : <button className="btn stop" onClick={() => { finish(frameRef.current); }}>I've finished</button>}
       </div>
-      {listening && <p className="small muted">Listening: {frames.length} of {expected.length} notes heard.</p>}
+      {listening && <p className="small muted">Listening: {frames.length} of {expected.length} notes heard.{ignored > 0 && ` Ignored ${ignored} small noise${ignored > 1 ? 's' : ''} (taps and knocks don't count, only clear notes).`}</p>}
       {err && <p className="error">{err}</p>}
     </div>
   );

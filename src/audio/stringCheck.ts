@@ -172,3 +172,48 @@ export function analyseNoteSequence(signal: Float32Array, sr: number, onsets: nu
   }
   return out;
 }
+
+/**
+ * How clearly the new sound at `onset` is a musical note (0..1), and which note.
+ * A plucked string puts most of its energy into a neat row of harmonics; a tap, a knock,
+ * a finger sliding or a breath spreads its energy everywhere. Used to ignore non-notes.
+ */
+export function noteClarity(signal: Float32Array, sr: number, onset: number, lo = 38, hi = 88): { midi: number; clarity: number } {
+  // What's new after the onset. Subtract in power with headroom, so a note that was already
+  // ringing (and only got jostled by a knock) doesn't look like a new note.
+  const len = Math.round(0.13 * sr);
+  const after = spectrum(signal, onset + Math.round(0.008 * sr), len, sr, 16384);
+  const before = spectrum(signal, Math.max(0, onset - len - Math.round(0.015 * sr)), len, sr, 16384);
+  const mag = new Float64Array(after.mag.length);
+  for (let k = 0; k < mag.length; k++) mag[k] = Math.sqrt(Math.max(0, after.mag[k] ** 2 - (before.mag[k] * 1.2) ** 2));
+  const sp = { ...after, mag };
+  // Measured against everything new AND a share of everything heard, so a faint leftover
+  // of an old note under a knock can't pass as a fresh note.
+  let fresh = 0, heard = 0;
+  for (let k = 0; k < sp.mag.length; k++) { const f = k * sp.binHz; if (f > 70 && f < 4000) { fresh += sp.mag[k] ** 2; heard += after.mag[k] ** 2; } }
+  const total = Math.max(fresh, heard * 0.5);
+  let best = { midi: lo, clarity: 0 };
+  if (total <= 0) return best;
+  for (let m = lo; m <= hi; m++) {
+    const f0 = midiToFreq(m);
+    // energy on the harmonics, minus energy halfway between them (noise fills both equally)
+    let e = 0;
+    const band = (f: number) => {
+      const c = Math.round(f / sp.binHz), w = Math.max(2, Math.round(f * 0.012 / sp.binHz));
+      let x = 0;
+      for (let k = c - w; k <= c + w; k++) if (k > 0 && k < sp.mag.length) x += sp.mag[k] * sp.mag[k];
+      return x;
+    };
+    for (let h = 1; h <= 8; h++) {
+      const f = f0 * h;
+      if (f > 4000) break;
+      // a string's harmonics are sharp spikes; a knock's energy is a broad hump,
+      // so compare each harmonic with the spectrum just either side of it
+      const d = Math.max(f * 0.06, 6 * sp.binHz);
+      e += band(f) - Math.max(band(f - d), band(f + d)) * 1.2 - band(f + f0 / 2) * 0.5;
+    }
+    const cl = Math.max(0, e) / total;
+    if (cl > best.clarity + 0.02 || (cl > best.clarity - 0.02 && cl > 0 && m === best.midi - 12)) best = { midi: m, clarity: Math.max(cl, best.clarity) };
+  }
+  return best;
+}

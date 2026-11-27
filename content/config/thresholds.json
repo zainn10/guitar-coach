@@ -52,7 +52,8 @@
   },
   "onset": {
     "minGapMs": 180,
-    "sensitivity": 1.0
+    "sensitivity": 1.0,
+    "minNoteClarity": 0.5
   },
   "tuner": {
     "inTuneCents": 5,
