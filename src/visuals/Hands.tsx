@@ -116,11 +116,12 @@ export function Rasgueado({ kind = 'four', chord = 'E' }: { kind?: 'four' | 'thr
           const x = 106 + i * 25;
           const dur = `${110 / speed}ms`;
           return (
-            <g key={f} style={{ transform: `scaleY(${out ? 1 : 0.5})`, transformOrigin: `${x}px 84px`, transformBox: 'view-box', transition: `transform ${dur} ease-out` }}>
+            <g key={f} style={{ transform: `scaleY(${out ? 1 : 0.62})`, transformOrigin: `${x}px 84px`, transformBox: 'view-box', transition: `transform ${dur} ease-out` }}>
               <g transform={`translate(${x} 84) rotate(180)`}>
                 <path d={fingerPath(64, 24)} fill="var(--skin-edge)" stroke="var(--skin-edge)" strokeWidth={3} />
                 <path d={fingerPath(64, 24)} fill="var(--skin)" />
                 <path d="M-8 -30 q8 3 16 0" stroke="var(--skin-edge)" strokeWidth={1.2} fill="none" opacity={0.5} />
+                <g style={{ opacity: out ? 1 : 0, transition: `opacity ${dur}` }}><Nail len={64} w={24} /></g>
               </g>
             </g>
           );
@@ -131,8 +132,8 @@ export function Rasgueado({ kind = 'four', chord = 'E' }: { kind?: 'four' | 'thr
           const out = curF === f || (kind !== 'i' && step >= 0 && r.seq.slice(0, step).some(s2 => s2[0] === f));
           const x = 106 + i * 25;
           return (
-            <g key={`b${f}`} style={{ transform: `translateY(${out ? 36 : 0}px)`, transition: `transform ${110 / speed}ms ease-out` }}>
-              <Badge x={x} y={108} color={`var(--r${f})`} label={f} r={10} />
+            <g key={`b${f}`} style={{ transform: `scale(${out ? 1.15 : 1})`, transformOrigin: `${x}px 66px`, transformBox: 'view-box', transition: `transform ${110 / speed}ms ease-out` }}>
+              <Badge x={x} y={66} color={`var(--r${f})`} label={f} r={10} />
             </g>
           );
         })}

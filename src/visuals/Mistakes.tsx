@@ -1,6 +1,6 @@
 // Pictures of common beginner problems, each next to the fix.
 import { ReactNode } from 'react';
-import { Skin, jointFinger, FretWire, StringDot, ArtDefs, fingerPath } from './Art';
+import { Skin, jointFinger, FretWire, StringDot, ArtDefs, fingerPath, go } from './Art';
 
 export const MISTAKES: Record<string, { title: string; wrong: string; right: string; view: string }> = {
   'far-from-fret': { title: 'Where to press', view: 'Side view along one string', wrong: 'Pressing in the middle of the gap: the string buzzes against the fret.', right: 'Fingertip just behind the fret wire: a clean note with much less pressure.' },
@@ -12,21 +12,22 @@ export const MISTAKES: Record<string, { title: string; wrong: string; right: str
   nails: { title: 'Right-hand nails (nylon guitar)', view: 'Side view of a plucking fingertip', wrong: 'Long or jagged nails catch and click on the strings.', right: 'Short and smooth, just past the fingertip. (Flamenco players keep them a little longer.)' },
 };
 
-const Bad = ({ x, y, text }: { x: number; y: number; text: string }) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--bad)" textAnchor="middle">{text}</text>;
-const Good = ({ x, y, text }: { x: number; y: number; text: string }) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--ok)" textAnchor="middle">{text}</text>;
+type Lbl = { x: number; y: number; text: string; anchor?: 'start' | 'middle' | 'end' };
+const Bad = ({ x, y, text, anchor = 'middle' }: Lbl) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--bad)" textAnchor={anchor}>{text}</text>;
+const Good = ({ x, y, text, anchor = 'middle' }: Lbl) => <text x={x} y={y} fontSize={12} fontWeight={800} fill="var(--ok)" textAnchor={anchor}>{text}</text>;
 
 function FarFromFret({ ok }: { ok: boolean }) {
   // side view: nut side on the left, body side on the right; frets at 50 and 175
-  const tipX = ok ? 160 : 108;
-  const f = jointFinger(tipX - 52, 6, 140, 46, 168, 40, 26, -1);
-  const tipY = 96;
+  const tipX = ok ? 162 : 110;
+  const tipY = 92;
+  const f = jointFinger(tipX - 38, tipY - 74, 140, 46, 168, 40, 26, -1);
   return (
     <>
       <rect x={0} y={104} width={220} height={22} fill="url(#board-wood)" />
       <FretWire x={50} y={104} /><FretWire x={175} y={104} />
       {ok
-        ? <path d={`M0 90 L${tipX} ${tipY} L175 96 L220 90`} stroke="var(--string)" strokeWidth={2.6} fill="none" />
-        : <path d={`M0 90 L${tipX} ${tipY + 4} L162 99 l4 -4 l4 5 l4 -4 L178 96 L220 90`} stroke="var(--bad)" strokeWidth={2.6} fill="none" />}
+        ? <path d={`M0 88 L${tipX} ${tipY + 3} L175 96 L220 88`} stroke="var(--string)" strokeWidth={2.6} fill="none" />
+        : <path d={`M0 88 L${tipX} ${tipY + 4} L160 97 l4 -4 l4 5 l4 -4 L178 96 L220 88`} stroke="var(--bad)" strokeWidth={2.6} fill="none" />}
       <Skin parts={f.parts} />
       <path d={f.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
       {!ok && <Bad x={190} y={80} text="bzzz" />}
@@ -54,22 +55,26 @@ function FingerFlat({ ok }: { ok: boolean }) {
 }
 
 function Thumb({ ok }: { ok: boolean }) {
-  // looking along the neck: fingerboard on the left (towards the strings), back of the neck on the right
-  const neck = 'M70 30 L94 30 C140 30 160 52 160 80 C160 108 140 130 94 130 L70 130 Z';
-  const finger = jointFinger(48, 6, 160, 26, 120, 34, 22, 1);
-  const thumb = ok ? { d: fingerPath(46, 24), transform: 'translate(200 112) rotate(-72)' } : { d: fingerPath(50, 24), transform: 'translate(184 64) rotate(-38)' };
-  const palm = ok ? 'M30 20 C10 70 40 140 110 148 C160 152 196 132 204 116' : 'M30 20 C14 70 40 136 104 140 C150 140 168 122 172 92 L186 62';
+  // Looking along the neck from the headstock: fingerboard and strings on the left,
+  // the rounded back of the neck on the right, your hand wrapping round from below.
+  const neck = 'M82 25 C140 25 165 48 165 70 C165 92 140 115 82 115 Z';
+  const ys = [32, 47, 62, 77, 92, 107];
+  const finger = ok ? jointFinger(112, 162, -75, 58, 15, 50, 22, -1) : jointFinger(112, 150, -80, 56, -18, 50, 24, -1);
+  const palm = ok
+    ? 'M108 152 C116 134 196 128 250 136 L262 200 L120 200 C102 186 100 164 108 152 Z'
+    : 'M112 126 C146 122 168 102 167 72 L262 56 L262 200 L124 200 C104 178 100 138 112 126 Z';
+  const thumb = ok ? { d: fingerPath(66, 26), transform: 'translate(186 146) rotate(-12)' } : { d: fingerPath(98, 26), transform: 'translate(200 68) rotate(-64)' };
   return (
-    <>
-      <rect x={58} y={30} width={12} height={100} rx={2} fill="url(#board-wood)" />
-      <path d={neck} fill="url(#neck-wood)" />
-      {[38, 52, 66, 80, 94, 108, 122].slice(0, 6).map((y, i) => <StringDot key={y} x={52} y={y + 8} r={4 - i * 0.35} />)}
-      <path d={palm} stroke="var(--skin-edge)" strokeWidth={30} fill="none" strokeLinecap="round" />
-      <Skin parts={[...finger.parts, thumb]} />
-      <path d={palm} stroke="var(--skin)" strokeWidth={26} fill="none" strokeLinecap="round" />
+    <g transform="translate(14 10) scale(0.74)">
+      <path d={neck} fill="url(#neck-wood)" stroke="#5a3218" strokeWidth={1.5} />
+      <rect x={70} y={25} width={13} height={90} rx={1} fill="url(#board-wood)" />
+      {ys.map((y, i) => <StringDot key={y} x={66} y={y} r={5 - i * 0.4} color={!ok && i === 3 ? 'var(--bad)' : undefined} />)}
+      <Skin parts={[{ d: palm }, thumb, ...finger.parts]} />
       <path d={finger.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
-      {ok ? <Good x={176} y={22} text="gap under palm" /> : <Bad x={130} y={18} text="thumb over the top" />}
-    </>
+      {ok
+        ? <><path d="M126 117 L126 135" stroke="var(--ok)" strokeWidth={2.5} markerStart="url(#mk-arr-ok)" markerEnd="url(#mk-arr-ok)" /><Good x={136} y={130} text="gap" anchor="start" /></>
+        : <><circle cx={150} cy={100} r={22} fill="none" stroke="var(--bad)" strokeWidth={2.5} strokeDasharray="4 3" /><Bad x={8} y={14} text="thumb over the top" anchor="start" /></>}
+    </g>
   );
 }
 
@@ -104,7 +109,7 @@ function Barre({ ok }: { ok: boolean }) {
       {[44, 96].map(y => <path key={y} d={`M${fx - 9} ${y + 6} q9 -3 18 0`} stroke="var(--skin-edge)" strokeWidth={1.5} fill="none" opacity={0.7} />)}
       {!ok && dead.map(i => <Bad key={i} x={60} y={ys[i] + 4} text="✕ dead" />)}
       {ok && <Good x={60} y={14} text="all six ring" />}
-      <text x={150} y={150} fontSize={10} fill="var(--muted)" textAnchor="middle">fret wire</text>
+      <text x={158} y={148} fontSize={10} fill="var(--muted)">fret wire</text>
     </>
   );
 }
@@ -120,21 +125,30 @@ function StrumArm({ ok }: { ok: boolean }) {
         <>
           <path d="M214 30 Q170 44 132 70" stroke="var(--skin-edge)" strokeWidth={26} fill="none" strokeLinecap="round" />
           <path d="M214 30 Q170 44 132 70" stroke="var(--skin)" strokeWidth={22} fill="none" strokeLinecap="round" />
-          <circle cx={126} cy={78} r={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={2} />
+          <g transform="translate(126 80) rotate(-20)"><Skin parts={[{ d: 'M-13 -10 C-7 -17 10 -17 14 -8 C17 2 12 14 2 15 C-8 16 -15 8 -14 -2 Z' }, { d: fingerPath(15, 9), transform: 'translate(-6 -6) rotate(-120)' }]} outline={2} /></g>
           <path d="M110 58 q-12 22 0 44" stroke="var(--ok)" strokeWidth={3} fill="none" markerEnd="url(#mk-arr-ok)" />
-          <Good x={58} y={148} text="small, from the elbow" />
+          <Good x={6} y={148} text="small, from the elbow" anchor="start" />
         </>
       ) : (
         <>
           <path d="M200 4 L150 30 L128 64" stroke="var(--skin-edge)" strokeWidth={26} fill="none" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M200 4 L150 30 L128 64" stroke="var(--skin)" strokeWidth={22} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx={124} cy={74} r={13} fill="var(--skin)" stroke="var(--skin-edge)" strokeWidth={2} />
+          <g transform="translate(124 76) rotate(-20)"><Skin parts={[{ d: 'M-13 -10 C-7 -17 10 -17 14 -8 C17 2 12 14 2 15 C-8 16 -15 8 -14 -2 Z' }, { d: fingerPath(15, 9), transform: 'translate(-6 -6) rotate(-120)' }]} outline={2} /></g>
           <path d="M98 14 Q40 84 98 150" stroke="var(--bad)" strokeWidth={3} fill="none" markerEnd="url(#mk-arr-bad)" />
-          <Bad x={170} y={148} text="big, stiff swing" />
+          <Bad x={214} y={148} text="big, stiff swing" anchor="end" />
         </>
       )}
     </>
   );
+}
+
+/** A nail that grows well past the fingertip and ends raggedly. */
+function longNail(j: { x: number; y: number }, t: { x: number; y: number }, w: number) {
+  const a = Math.atan2(t.x - j.x, -(t.y - j.y)) * 180 / Math.PI;
+  const P = (along: number, side: number) => { const p = go(j.x, j.y, a, along); return go(p.x, p.y, a - 90, side); };
+  const L = Math.hypot(t.x - j.x, t.y - j.y);
+  const pts = [P(L * 0.55, w * 0.42), P(L + 12, w * 0.3), P(L + 9, w * 0.18), P(L + 14, w * 0.06), P(L + 6, -w * 0.02), P(L * 0.55, w * 0.28)];
+  return 'M' + pts.map(p => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L') + ' Z';
 }
 
 function Nails({ ok }: { ok: boolean }) {
@@ -146,7 +160,7 @@ function Nails({ ok }: { ok: boolean }) {
       <Skin parts={f.parts} />
       {ok
         ? <path d={f.nail} fill="var(--nail)" stroke="var(--skin-edge)" strokeWidth={0.8} />
-        : <path d={`${f.nail} M${f.tip.x - 4} ${f.tip.y - 10} l22 6 l-6 6 l6 6 l-22 -4 Z`} fill="var(--nail)" stroke="var(--bad)" strokeWidth={1.2} />}
+        : <path d={longNail(f.joint, f.tip, 30)} fill="var(--nail)" stroke="var(--bad)" strokeWidth={1.2} />}
       {ok ? <Good x={160} y={40} text="short & smooth" /> : <Bad x={160} y={40} text="long & jagged" />}
     </>
   );
