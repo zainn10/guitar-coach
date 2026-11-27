@@ -1,0 +1,11 @@
+{
+  "_about": "Original practice progression (not a real song). One strum on beat 1 of each bar.",
+  "id": "first-steps",
+  "title": "First Steps",
+  "credit": "Original practice progression",
+  "bpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "strumsPerBar": 1,
+  "bars": ["Em", "Em", "Am", "Am", "D", "G", "A", "Em"]
+}

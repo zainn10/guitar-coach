@@ -1,0 +1,229 @@
+import { useEffect, useState } from 'react';
+import { engine } from '../audio/engine';
+import { scheduleClicks } from '../audio/metronome';
+import { loopbackLatency, strumAlongLatency, CalibrationResult } from '../audio/latency';
+import { store, effectiveLatency } from '../storage/store';
+import { downloadBlob } from '../audio/wav';
+import { Card, LevelMeter, MicGate, startMic, stopMic, useEngineState, useStore, micErrorText, StopListening } from '../ui';
+import { useStrums } from '../audio/useStrums';
+import type { Sensitivity } from '../audio/onset';
+
+export function Setup() {
+  const { settings } = useStore();
+  const eng = useEngineState();
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const lat = effectiveLatency(settings);
+
+  useEffect(() => {
+    if (!eng.running) return;
+    navigator.mediaDevices.enumerateDevices().then(d => setDevices(d.filter(x => x.kind === 'audioinput')));
+  }, [eng.running]);
+
+  const processingOn = Object.entries(eng.processing).filter(([, v]) => v).map(([k]) =>
+    ({ echoCancellation: 'echo cancellation', noiseSuppression: 'noise suppression', autoGainControl: 'automatic volume' } as Record<string, string>)[k]);
+
+  return (
+    <div className="stack">
+      <header className="page-head">
+        <h1>Setup</h1>
+        <p className="lead">Three quick steps so the app can hear your guitar properly and judge your timing fairly.</p>
+      </header>
+
+      <Card title={<><span className="step">1</span> Microphone</>}>
+        <MicGate why="Check the app can hear your guitar. Sound is analysed on this computer and never recorded or sent anywhere unless you choose to save a clip.">
+          <div className="row spread wrap"><p>Strum or pluck a string. The bar should jump.</p><StopListening /></div>
+          <LevelMeter />
+          <div className="row wrap">
+            <label htmlFor="mic-select">Microphone</label>
+            <select id="mic-select" value={settings.deviceId ?? ''} onChange={async e => {
+              store.setSettings({ deviceId: e.target.value || undefined });
+              try { await startMic(e.target.value || undefined); } catch (err) { alertError(err); }
+            }}>
+              <option value="">Default microphone</option>
+              {devices.map(d => <option key={d.deviceId} value={d.deviceId}>{d.label || 'Microphone'}</option>)}
+            </select>
+          </div>
+          <p className="small muted">Using: {eng.label || 'default'} · {eng.sampleRate} Hz</p>
+          {processingOn.length > 0
+            ? <p className="note warn">Your browser kept {processingOn.join(' and ')} switched on. That's designed for voices and can hide guitar notes. Chrome lets the app switch it off. If you're already in Chrome, try another microphone.</p>
+            : <p className="note ok">Voice processing is off, which is what we want for an instrument.</p>}
+        </MicGate>
+      </Card>
+
+      <SensitivityCard />
+
+      <Card title={<><span className="step">2</span> Headphones or speakers?</>}>
+        <div className="choice-row" role="radiogroup" aria-label="How you hear the metronome">
+          <button role="radio" aria-checked={settings.headphones} className={`choice ${settings.headphones ? 'on' : ''}`} onClick={() => store.setSettings({ headphones: true })}>
+            <strong>Wired headphones</strong><span>Recommended. The click can't leak into the microphone.</span>
+          </button>
+          <button role="radio" aria-checked={!settings.headphones} className={`choice ${!settings.headphones ? 'on' : ''}`} onClick={() => store.setSettings({ headphones: false })}>
+            <strong>Laptop speakers</strong><span>Works. The app filters the click out as well as it can.</span>
+          </button>
+        </div>
+        <p className="small muted">Bluetooth headphones add a big, variable delay. If you use them, the strum-along test below is essential.</p>
+      </Card>
+
+      <Card title={<><span className="step">3</span> Timing calibration</>}>
+        <p>Every computer has a small delay between making a sound and hearing it through the microphone. Measuring it once means "late" really means late.</p>
+        <p className="latency-now">Delay in use: <strong>{lat.ms} ms</strong> <span className="muted">from {lat.source}</span></p>
+        <div className="grid-2">
+          <SpeakerTest disabled={settings.headphones} />
+          <StrumAlongTest />
+        </div>
+      </Card>
+
+      <BackupCard />
+
+      <Card title="What the listening can and can't do" className="honest">
+        <ul>
+          <li><strong>Reliable:</strong> tuning single strings, telling which chord you strummed, spotting most muted strings, timing of strums.</li>
+          <li><strong>Less certain:</strong> a few strings play the same note as another string an octave apart (for example the two E strings in E minor). Those show as "can't check on its own".</li>
+          <li><strong>Later, with limits:</strong> fast rasgueado can be checked for chord and timing only, not each finger.</li>
+          <li>A quiet room helps a lot. Keep the laptop about an arm's length from the guitar's sound hole.</li>
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
+function alertError(e: unknown) { console.error(micErrorText(e)); }
+
+function SpeakerTest({ disabled }: { disabled: boolean }) {
+  const { settings } = useStore();
+  const [state, setState] = useState<'idle' | 'running'>('idle');
+  const [res, setRes] = useState<CalibrationResult | null>(null);
+  const run = async () => {
+    const wasOn = engine.running;
+    try { if (!wasOn) await startMic(); } catch (e) { setRes({ ok: false, latencyMs: null, spreadMs: null, samples: [], detail: micErrorText(e) }); return; }
+    const ctx = engine.ctx!;
+    setState('running'); setRes(null);
+    const t0 = ctx.currentTime + 0.4;
+    const { times } = scheduleClicks(ctx, t0, 8, 0.4, 8, 0.9);
+    const sr = engine.sampleRate;
+    const from = Math.round(t0 * sr) - sr / 2;
+    const end = Math.round((times[7] + 0.6) * sr);
+    try {
+      await engine.waitForFrame(end, 10000);
+      const sig = engine.getRange(from, end);
+      const r = loopbackLatency(sig, sr, times.map(t => Math.round(t * sr) - from));
+      setRes(r);
+      if (r.ok) store.setSettings({ loopbackMs: r.latencyMs! });
+    } catch { setRes({ ok: false, latencyMs: null, spreadMs: null, samples: [], detail: 'Stopped.' }); }
+    if (!wasOn) stopMic();
+    setState('idle');
+  };
+  return (
+    <div className={`subcard ${disabled ? 'disabled' : ''}`}>
+      <h3>Speaker test</h3>
+      <p className="small">Switches the microphone on for 4 seconds, plays 8 clicks through the speakers and times how long the microphone takes to hear them. Turn the volume up and stay quiet for 4 seconds.</p>
+      {disabled
+        ? <p className="small muted">Not needed with headphones (the mic can't hear them). Use the strum-along test.</p>
+        : state === 'running'
+          ? <button className="btn stop" onClick={stopMic}>Stop</button>
+          : <button className="btn" onClick={run}>Run speaker test</button>}
+      {settings.loopbackMs != null && <p className="small">Last result: <strong>{settings.loopbackMs} ms</strong></p>}
+      {res && <p className={`note ${res.ok ? 'ok' : 'warn'}`}>{res.ok ? `Measured ${res.latencyMs} ms. ` : ''}{res.detail}</p>}
+    </div>
+  );
+}
+
+function StrumAlongTest() {
+  const { settings } = useStore();
+  const [beat, setBeat] = useState<number | null>(null);
+  const [res, setRes] = useState<CalibrationResult | null>(null);
+  const run = async () => {
+    const wasOn = engine.running;
+    try { if (!wasOn) await startMic(); } catch (e) { setRes({ ok: false, latencyMs: null, spreadMs: null, samples: [], detail: micErrorText(e) }); return; }
+    const ctx = engine.ctx!;
+    setRes(null);
+    const interval = 0.75; // 80 bpm
+    const t0 = ctx.currentTime + 0.5;
+    const { times } = scheduleClicks(ctx, t0, 12, interval, 4, 0.6);
+    const sr = engine.sampleRate;
+    const timer = setInterval(() => {
+      const i = Math.floor((ctx.currentTime - t0) / interval);
+      setBeat(i >= 0 && i < 12 ? i : null);
+    }, 30);
+    const from = Math.round(t0 * sr);
+    const end = Math.round((times[11] + 0.6) * sr);
+    try {
+      await engine.waitForFrame(end, 20000);
+      const sig = engine.getRange(from, end);
+      const r = strumAlongLatency(sig, sr, times.slice(4).map(t => Math.round(t * sr) - from), store.get().settings.sensitivity);
+      setRes(r);
+      if (r.ok) store.setSettings({ strumMs: r.latencyMs! });
+    } catch { setRes({ ok: false, latencyMs: null, spreadMs: null, samples: [], detail: 'Stopped.' }); }
+    clearInterval(timer);
+    if (!wasOn) stopMic();
+    setBeat(null);
+  };
+  return (
+    <div className="subcard">
+      <h3>Strum-along test</h3>
+      <p className="small">The microphone is on only while this runs (about 10 seconds). You'll hear 4 count-in clicks, then 8 more. Strum any chord, firmly, exactly on each of the 8. (Mute the strings with your hand if you like; it just needs a sharp sound.)</p>
+      {beat === null
+        ? <button className="btn primary" onClick={run}>Run strum-along test</button>
+        : <button className="btn stop" onClick={stopMic}>Stop</button>}
+      {beat !== null && (
+        <div className="count-dots" aria-live="polite">
+          {Array.from({ length: 12 }, (_, i) => <span key={i} className={`cd ${i < 4 ? 'countin' : ''} ${i === beat ? 'now' : ''}`}>{i < 4 ? 4 - i : 'strum'}</span>)}
+        </div>
+      )}
+      {settings.strumMs != null && <p className="small">Last result: <strong>{settings.strumMs} ms</strong> (this one is used)</p>}
+      {res && <p className={`note ${res.ok ? 'ok' : 'warn'}`}>{res.ok ? `Measured ${res.latencyMs} ms. ` : ''}{res.detail}</p>}
+      {settings.strumMs != null && <button className="btn link" onClick={() => store.setSettings({ strumMs: undefined })}>Forget this result</button>}
+    </div>
+  );
+}
+
+const SENS: { id: Sensitivity; label: string; desc: string }[] = [
+  { id: 'low', label: 'Firm strums only', desc: 'Best in a noisy room. Ignores almost everything except a proper strum.' },
+  { id: 'medium', label: 'Normal', desc: 'Ignores taps, finger noise and quiet room sounds.' },
+  { id: 'high', label: 'Soft strums too', desc: 'For gentle playing in a very quiet room.' },
+];
+
+function SensitivityCard() {
+  const { settings } = useStore();
+  const [last, setLast] = useState<{ ok: boolean; t: number } | null>(null);
+  useStrums(() => setLast({ ok: true, t: Date.now() }), true, () => setLast({ ok: false, t: Date.now() }));
+  const eng = useEngineState();
+  return (
+    <Card title="How loud must a strum be?">
+      <p>The app ignores small sounds so it only reacts to real strums. If it reacts to taps or fidgeting, choose "Firm strums only". If it misses your strums, choose "Soft strums too".</p>
+      <div className="choice-row three" role="radiogroup" aria-label="Strum sensitivity">
+        {SENS.map(x => (
+          <button key={x.id} role="radio" aria-checked={settings.sensitivity === x.id} className={`choice ${settings.sensitivity === x.id ? 'on' : ''}`} onClick={() => store.setSettings({ sensitivity: x.id })}>
+            <strong>{x.label}</strong><span>{x.desc}</span>
+          </button>
+        ))}
+      </div>
+      {eng.running
+        ? <p className="small" aria-live="polite">Try it: tap the guitar body, then strum. {last ? (last.ok ? <strong className="good-text">Strum detected.</strong> : <span className="muted">Small sound ignored.</span>) : ''}</p>
+        : <p className="small muted">Switch the microphone on in step 1 to try it out.</p>}
+    </Card>
+  );
+}
+
+function BackupCard() {
+  const [msg, setMsg] = useState<string | null>(null);
+  return (
+    <Card title="Where your progress is saved">
+      <p>Your settings and results are saved <strong>inside Google Chrome on this computer</strong>, not online. They stay there when you close the app or update it to a new version.</p>
+      <p className="small muted">They would be lost if you cleared Chrome's browsing data or switched computer, so save a backup file now and then (it's tiny).</p>
+      <div className="row wrap">
+        <button className="btn" onClick={() => downloadBlob(new Blob([store.exportJson()], { type: 'application/json' }), `guitar-coach-backup-${new Date().toISOString().slice(0, 10)}.json`)}>Save backup file</button>
+        <label className="btn">
+          Restore from backup
+          <input type="file" accept="application/json,.json" hidden onChange={async e => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            try { store.importJson(await f.text()); setMsg('Backup restored.'); } catch (err) { setMsg(String((err as Error).message)); }
+            e.target.value = '';
+          }} />
+        </label>
+      </div>
+      {msg && <p className="note ok" role="status">{msg}</p>}
+    </Card>
+  );
+}

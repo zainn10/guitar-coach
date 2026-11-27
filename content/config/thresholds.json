@@ -1,0 +1,31 @@
+{
+  "_about": "All pass marks and detection settings in one place. Change a number here to make a check easier or harder.",
+  "mastery": {
+    "cleanChord": { "clean": 4, "outOf": 5 }
+  },
+  "chordCheck": {
+    "analysisStartMs": 70,
+    "analysisLengthMs": 450,
+    "stringPresentDb": 12,
+    "stringWeakDb": 6,
+    "fastDecayDb": 22,
+    "extraStringDb": 14,
+    "extraStringRelDb": -6,
+    "wrongChordMargin": 0.04,
+    "sharedOkDb": 11,
+    "sharedMissingDb": 5.5
+  },
+  "timing": {
+    "onTimeMs": 150,
+    "slightlyOffMs": 350,
+    "searchWindowBeats": 1.5
+  },
+  "onset": {
+    "minGapMs": 180,
+    "sensitivity": 1.0
+  },
+  "tuner": {
+    "inTuneCents": 5,
+    "closeCents": 15
+  }
+}

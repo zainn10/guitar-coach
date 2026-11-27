@@ -1,0 +1,77 @@
+{
+  "_about": "Chord shapes. 'checkShared' = strings that share all their overtones with another string but which the synthetic tests show can still be checked. 'frets' lists strings from 6 (low E, thickest) to 1 (high E, thinnest). null = don't play that string (X), 0 = open string. 'fingers' uses 1 index, 2 middle, 3 ring, 4 little (null = no finger). 'steps' is the order to place fingers in build-the-chord mode.",
+  "chords": [
+    {
+      "id": "Em", "checkShared": [2], "name": "E minor", "quality": "minor",
+      "frets":   [0, 2, 2, 0, 0, 0],
+      "fingers": [null, 2, 3, null, null, null],
+      "steps": [
+        { "string": 5, "text": "Middle finger, 2nd fret, 5th string (A). Press with the very tip, just behind the fret wire." },
+        { "string": 4, "text": "Ring finger, 2nd fret, 4th string (D), right next to your middle finger." },
+        { "string": 0, "text": "Strum all six strings. Every string should ring." }
+      ],
+      "notes": "One of the easiest chords on the guitar. All six strings ring."
+    },
+    {
+      "id": "Am", "checkShared": [1], "name": "A minor", "quality": "minor",
+      "frets":   [null, 0, 2, 2, 1, 0],
+      "fingers": [null, null, 2, 3, 1, null],
+      "steps": [
+        { "string": 2, "text": "Index finger, 1st fret, 2nd string (B). Curl it so it doesn't touch the 1st string." },
+        { "string": 4, "text": "Middle finger, 2nd fret, 4th string (D)." },
+        { "string": 3, "text": "Ring finger, 2nd fret, 3rd string (G), just below your middle finger." },
+        { "string": 0, "text": "Strum from the 5th string (A) down. Don't play the 6th string." }
+      ],
+      "notes": "Same shape as E major, moved across one string."
+    },
+    {
+      "id": "A", "checkShared": [1], "name": "A major", "quality": "major",
+      "frets":   [null, 0, 2, 2, 2, 0],
+      "fingers": [null, null, 1, 2, 3, null],
+      "steps": [
+        { "string": 4, "text": "Index finger, 2nd fret, 4th string (D)." },
+        { "string": 3, "text": "Middle finger, 2nd fret, 3rd string (G)." },
+        { "string": 2, "text": "Ring finger, 2nd fret, 2nd string (B). Three fingers in a row; they won't all fit right behind the fret, so angle them slightly." },
+        { "string": 0, "text": "Strum from the 5th string (A) down. Check the 1st string still rings." }
+      ],
+      "notes": "Three fingers squeezed into one fret. The 1st string is the one that usually gets muted."
+    },
+    {
+      "id": "D", "name": "D major", "quality": "major",
+      "frets":   [null, null, 0, 2, 3, 2],
+      "fingers": [null, null, null, 1, 3, 2],
+      "steps": [
+        { "string": 3, "text": "Index finger, 2nd fret, 3rd string (G)." },
+        { "string": 1, "text": "Middle finger, 2nd fret, 1st string (high E)." },
+        { "string": 2, "text": "Ring finger, 3rd fret, 2nd string (B). The fingers make a small triangle." },
+        { "string": 0, "text": "Strum only the top four strings, starting from the 4th string (D)." }
+      ],
+      "notes": "Only four strings. Aim your strum at the 4th string."
+    },
+    {
+      "id": "G", "name": "G major", "quality": "major",
+      "frets":   [3, 2, 0, 0, 0, 3],
+      "fingers": [2, 1, null, null, null, 3],
+      "steps": [
+        { "string": 5, "text": "Index finger, 2nd fret, 5th string (A)." },
+        { "string": 6, "text": "Middle finger, 3rd fret, 6th string (low E)." },
+        { "string": 1, "text": "Ring finger, 3rd fret, 1st string (high E)." },
+        { "string": 0, "text": "Strum all six strings. The three middle strings ring open." }
+      ],
+      "notes": "A wide stretch. The open 4th, 3rd and 2nd strings must not be touched."
+    },
+
+    { "id": "E",     "name": "E major",  "quality": "major", "frets": [0, 2, 2, 1, 0, 0],       "fingers": [null, 2, 3, 1, null, null], "reference": true },
+    { "id": "C",     "name": "C major",  "quality": "major", "frets": [null, 3, 2, 0, 1, 0],    "fingers": [null, 3, 2, null, 1, null], "reference": true },
+    { "id": "Dm",    "name": "D minor",  "quality": "minor", "frets": [null, null, 0, 2, 3, 1], "fingers": [null, null, null, 2, 3, 1], "reference": true },
+    { "id": "Fmaj7", "name": "F major 7 (easy F)", "quality": "maj7", "frets": [null, null, 3, 2, 1, 0], "fingers": [null, null, 3, 2, 1, null], "reference": true },
+    { "id": "E7",    "name": "E7",       "quality": "7",     "frets": [0, 2, 0, 1, 0, 0],       "fingers": [null, 2, null, 1, null, null], "reference": true },
+    { "id": "A7",    "name": "A7",       "quality": "7",     "frets": [null, 0, 2, 0, 2, 0],    "fingers": [null, null, 2, null, 3, null], "reference": true },
+    { "id": "D7",    "name": "D7",       "quality": "7",     "frets": [null, null, 0, 2, 1, 2], "fingers": [null, null, null, 2, 1, 3], "reference": true },
+    { "id": "Em7",   "name": "E minor 7","quality": "m7",    "frets": [0, 2, 0, 0, 0, 0],       "fingers": [null, 2, null, null, null, null], "reference": true },
+    { "id": "Am7",   "name": "A minor 7","quality": "m7",    "frets": [null, 0, 2, 0, 1, 0],    "fingers": [null, null, 2, null, 1, null], "reference": true },
+    { "id": "G7",    "name": "G7",       "quality": "7",     "frets": [3, 2, 0, 0, 0, 1],       "fingers": [3, 2, null, null, null, 1], "reference": true },
+    { "id": "Cadd9", "name": "Cadd9",    "quality": "add9",  "frets": [null, 3, 2, 0, 3, 0],    "fingers": [null, 2, 1, null, 3, null], "reference": true },
+    { "id": "Dsus4", "name": "Dsus4",    "quality": "sus4",  "frets": [null, null, 0, 2, 3, 3], "fingers": [null, null, null, 1, 2, 3], "reference": true }
+  ]
+}
