@@ -261,3 +261,8 @@ button.mic-chip.on { color: var(--bad); }
 .maybe { background: var(--warn-bg); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
 .maybe .issues { margin: 0; }
 .update-bar { background: var(--ok-bg); border-bottom: 1px solid var(--line); padding: 10px max(16px, env(safe-area-inset-left, 0px)); display: flex; gap: 14px; align-items: center; justify-content: center; flex-wrap: wrap; font-weight: 600; }
+.mode-seg { margin-bottom: 14px; }
+.pluck-progress { list-style: none; padding: 0; margin: 8px 0 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.pluck-progress li { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.1rem; background: var(--surface-2); color: var(--muted); border: 2px solid transparent; }
+.pluck-progress li.done { background: var(--ok); color: #fff; }
+.pluck-progress li.next { border-color: var(--fg); color: var(--fg); }

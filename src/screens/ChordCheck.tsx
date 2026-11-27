@@ -3,7 +3,11 @@ import { engine } from '../audio/engine';
 import { analyseChord, ChordResult } from '../audio/chordCheck';
 import { useStrums } from '../audio/useStrums';
 import { addStrum } from '../audio/synth';
-import { STRING_SHORT, STRING_LABEL } from '../audio/notes';
+import { STRING_SHORT, STRING_LABEL, chordStrings } from '../audio/notes';
+import { analysePlucks, StringCheckResult, PluckStatus } from '../audio/stringCheck';
+import type { StringStatus } from '../audio/chordCheck';
+
+const PLUCK_TO_STATUS: Record<PluckStatus, StringStatus> = { ok: 'ok', muted: 'damped', 'wrong-note': 'wrong-note', 'not-played': 'missing' };
 import { encodeWav, downloadBlob } from '../audio/wav';
 import { ChordDiagram, FingerLegend, statusStyle } from '../visuals/ChordDiagram';
 import { CHORDS, PHASE0_CHORDS, chordById, THRESHOLDS } from '../content';
@@ -16,7 +20,7 @@ export function ChordCheck() {
     <div className="stack">
       <header className="page-head">
         <h1>Chord check</h1>
-        <p className="lead">Make the shape, strum all the strings once (slowly is fine) and let it ring. The app tells you which strings rang clearly.</p>
+        <p className="lead">Make the shape, then either <strong>strum</strong> it once and let it ring (quick check), or switch to <strong>String by string</strong> and pluck each string on its own (checks every string).</p>
       </header>
       <div className="chips" role="tablist" aria-label="Choose a chord">
         {PHASE0_CHORDS.map(id => <ChordChip key={id} id={id} selected={id === chordId} onClick={() => setChordId(id)} />)}
@@ -49,9 +53,43 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
   const poke = useAutoOff(120000, () => setAutoOff(true));
   const { clean, outOf } = THRESHOLDS.mastery.cleanChord;
   const m = masteryState(attempts[chordId], clean, outOf);
+  const [mode, setMode] = useState<'strum' | 'pluck'>('strum');
+  const [plucks, setPlucks] = useState<number[]>([]);
+  const pluckRef = useRef<number[]>([]);
+  const [pluckResult, setPluckResult] = useState<StringCheckResult | null>(null);
+  const finishTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const soundingCount = chord.frets.filter(f => f !== null).length;
+  const soundingStrings = chordStrings(chord).filter(s => s.midi !== null).map(s => s.string);
+
+  const finishPlucks = async (frames: number[]) => {
+    if (!frames.length) return;
+    const sr = engine.sampleRate;
+    const last = frames[frames.length - 1];
+    try { await engine.waitForFrame(last + Math.round(0.3 * sr)); } catch { return; }
+    const from = frames[0] - Math.round(0.4 * sr);
+    const sig = engine.getRange(from, last + Math.round(0.3 * sr));
+    const r = analysePlucks(sig, sr, frames.map(f => f - from), chord);
+    lastFrame.current = frames[0];
+    setPluckResult(r);
+    store.addAttempt(chordId, { t: Date.now(), verdict: r.clean ? 'clean' : 'issues', issues: r.strings.filter(x => x.status !== 'ok').map(x => x.message) });
+  };
+
+  // String by string: collect single plucks, then check them all together.
+  useStrums(frame => {
+    poke(); setAutoOff(false);
+    if (busy.current) return;
+    if (pluckResult) setPluckResult(null);
+    const next = [...(pluckResult ? [] : pluckRef.current), frame];
+    pluckRef.current = next;
+    setPlucks(next);
+    if (finishTimer.current) clearTimeout(finishTimer.current);
+    if (next.length >= soundingCount) { pluckRef.current = []; finishPlucks(next); }
+    else finishTimer.current = setTimeout(() => { pluckRef.current = []; finishPlucks(next); }, 3000);
+  }, buildStep === null && mode === 'pluck', () => setIgnored(n => n + 1), 'pluck');
 
   useStrums(async frame => {
     poke(); setAutoOff(false);
+    if (mode !== 'strum') return;
     if (busy.current) return;
     busy.current = true;
     setPhase('hearing');
@@ -67,7 +105,10 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
       if (r.verdict !== 'too-quiet') store.addAttempt(chordId, { t: Date.now(), verdict: r.verdict, issues: r.issues.map(i => i.message) });
     } catch { setPhase('listening'); }
     setTimeout(() => { busy.current = false; }, 400);
-  }, buildStep === null, () => setIgnored(n => n + 1));
+  }, buildStep === null && mode === 'strum', () => setIgnored(n => n + 1));
+
+  const pluckStatuses = pluckResult ? Object.fromEntries(pluckResult.strings.map(x => [x.string, PLUCK_TO_STATUS[x.status]])) : undefined;
+  const switchMode = (m2: 'strum' | 'pluck') => { setMode(m2); setPlucks([]); pluckRef.current = []; setPluckResult(null); setResult(null); setPhase('listening'); };
 
   const playRef = () => {
     if (!engine.ctx) return;
@@ -94,7 +135,7 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
         </div>
         <div className="diagram-wrap">
           <ChordDiagram chord={chord} view={settings.diagramView} width={300}
-            statuses={buildStep === null ? statuses : undefined}
+            statuses={buildStep === null ? (mode === 'pluck' ? pluckStatuses : statuses) : undefined}
             visibleSteps={buildStep ?? undefined}
             highlightString={buildStep ? steps[buildStep - 1]?.string : undefined} />
         </div>
@@ -122,12 +163,47 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
 
       <MicGate why="Chord check listens to your strum through the microphone." note={autoOff ? <p className="note warn">The microphone switched itself off after 2 minutes without a strum.</p> : undefined}>
         <div className="stack">
-          <Card className={`result-card ${result ? 'v-' + result.verdict : ''}`}>
-            {phase === 'listening' && !result && (
+          <Card className={`result-card ${mode === 'strum' ? (result ? 'v-' + result.verdict : '') : (pluckResult ? (pluckResult.clean ? 'v-clean' : 'v-issues') : '')}`}>
+            <div className="seg mode-seg" role="radiogroup" aria-label="How to check">
+              <button role="radio" aria-checked={mode === 'strum'} className={mode === 'strum' ? 'on' : ''} onClick={() => switchMode('strum')}>Strum check</button>
+              <button role="radio" aria-checked={mode === 'pluck'} className={mode === 'pluck' ? 'on' : ''} onClick={() => switchMode('pluck')}>String by string</button>
+            </div>
+            {mode === 'pluck' && (
+              <div className="pluck-mode">
+                {!pluckResult && (
+                  <>
+                    <div className="listening"><span className="pulse" aria-hidden /> <p><strong>Hold the {chord.id} shape and pluck each string on its own</strong>, from the thickest to the thinnest, about one per second. This checks every string, even the ones a strum can't separate.</p></div>
+                    <ol className="pluck-progress" aria-label="Strings plucked so far">
+                      {soundingStrings.map((st, i) => (
+                        <li key={st} className={i < plucks.length ? 'done' : i === plucks.length ? 'next' : ''}>{STRING_SHORT[st]}</li>
+                      ))}
+                    </ol>
+                    {plucks.length > 0 && <button className="btn link" onClick={() => { setPlucks([]); pluckRef.current = []; if (finishTimer.current) clearTimeout(finishTimer.current); }}>Start again</button>}
+                  </>
+                )}
+                {pluckResult && (
+                  <div className="result">
+                    <h2 className="verdict">{pluckResult.clean ? 'Every string clear!' : 'Nearly there'}</h2>
+                    <p>{pluckResult.summary}</p>
+                    {!pluckResult.clean && (
+                      <ul className="issues">
+                        {pluckResult.strings.filter(x => x.status !== 'ok').map(x => <li key={x.string}><strong>{x.message}</strong> <span>{x.fix}</span></li>)}
+                      </ul>
+                    )}
+                    <p className="small muted">Pluck the strings again to re-check.</p>
+                    <button className="btn link" onClick={() => {
+                      const f = lastFrame.current; const sr = engine.sampleRate;
+                      if (f !== null) downloadBlob(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(8 * sr))), sr), `flagged-${chordId}-strings-${pluckResult.strings.map(x => x.string + x.status).join('_')}-${Date.now()}.wav`);
+                    }}>That's not right: save this for Claude to look at</button>
+                  </div>
+                )}
+              </div>
+            )}
+            {mode === 'strum' && phase === 'listening' && !result && (
               <div className="listening"><span className="pulse" aria-hidden /> <p><strong>Listening.</strong> Strum {chord.id} once and let it ring.</p></div>
             )}
-            {phase === 'hearing' && <div className="listening"><span className="pulse" aria-hidden /> <p><strong>Heard a strum…</strong> keep it ringing.</p></div>}
-            {result && phase !== 'hearing' && <ResultView result={result} onWrong={() => {
+            {mode === 'strum' && phase === 'hearing' && <div className="listening"><span className="pulse" aria-hidden /> <p><strong>Heard a strum…</strong> keep it ringing.</p></div>}
+            {mode === 'strum' && result && phase !== 'hearing' && <ResultView result={result} onWrong={() => {
               const f = lastFrame.current;
               const sr = engine.sampleRate;
               if (f !== null) downloadBlob(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(2.4 * sr))), sr), `flagged-${chordId}-said-${result.verdict}-${result.issues.map(i => i.kind + i.string).join('_') || 'clean'}-${Date.now()}.wav`);
@@ -140,7 +216,7 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
           </Card>
 
           <Card title="Mastery check">
-            <p>Pass mark: <strong>{clean} clean strums out of the last {outOf}</strong>.</p>
+            <p>Pass mark: <strong>{clean} clean out of the last {outOf}</strong> (strum checks and string-by-string checks both count).</p>
             <div className="attempt-dots" aria-label={`${m.cleanCount} clean out of the last ${m.last.length}`}>
               {Array.from({ length: outOf }, (_, i) => {
                 const a = m.last[i];
@@ -195,7 +271,7 @@ function ResultView({ result, onWrong }: { result: ChordResult; onWrong?: () => 
       </table>
       {unsure.length > 0 && (
         <p className="small muted">
-          The {unsure.map(s => STRING_LABEL[s.string]).join(' and ')} string{unsure.length > 1 ? 's play' : ' plays'} the same note as another string an octave apart, so I can't check {unsure.length > 1 ? 'them' : 'it'} on {unsure.length > 1 ? 'their' : 'its'} own yet.
+          <strong>Why the grey "?"</strong>: in this chord the {unsure.map(s => STRING_LABEL[s.string]).join(' and ')} string{unsure.length > 1 ? 's play' : ' plays'} the same note as another string (just higher or lower), so in a strum the two blur together and I can't tell them apart. That's not a mistake on your part. To check every string, switch to <strong>String by string</strong> above.
         </p>
       )}
       {onWrong && <button className="btn link" onClick={onWrong}>That's not right: save this strum for Claude to look at</button>}

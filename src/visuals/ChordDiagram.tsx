@@ -26,11 +26,11 @@ const STATUS_STYLE: Record<StringStatus, { color: string; icon: string; label: s
   weak: { color: 'var(--warn)', icon: '~', label: 'faint' },
   damped: { color: 'var(--warn)', icon: '~', label: 'died away quickly' },
   missing: { color: 'var(--bad)', icon: '✕', label: 'not heard' },
-  'missing-probably': { color: 'var(--bad)', icon: '✕', label: 'probably not heard' },
+  'missing-probably': { color: 'var(--warn)', icon: '?', label: 'might not have rung (not sure)' },
   'wrong-note': { color: 'var(--bad)', icon: '!', label: 'wrong note' },
   extra: { color: 'var(--bad)', icon: '!', label: "shouldn't be played" },
   'extra-maybe': { color: 'var(--warn)', icon: '?', label: 'ringing a little (maybe just humming along)' },
-  unsure: { color: 'var(--muted)', icon: '?', label: "can't check on its own" },
+  unsure: { color: 'var(--muted)', icon: '?', label: "can't tell in a strum" },
   'silent-ok': { color: 'var(--line)', icon: '', label: 'correctly not played' },
 };
 export const statusStyle = (s: StringStatus) => STATUS_STYLE[s];

@@ -226,3 +226,12 @@ export function isStrum(signal: Float32Array, sampleRate: number, frame: number,
   // A chord was still ringing: a new strum makes it clearly louder again; a tap doesn't.
   return peakDb - justBeforeDb >= 3;
 }
+
+/** Looser check for single plucked notes (quieter than strums, often over ringing strings). */
+export function isPluck(signal: Float32Array, sampleRate: number, frame: number, sensitivity: Sensitivity = 'medium') {
+  const g = SENSITIVITY_GATES[sensitivity];
+  const { peakDb, backgroundDb, justBeforeDb } = soundLevel(signal, sampleRate, frame);
+  if (peakDb < g.minDb - 6) return false;
+  if (justBeforeDb < g.minDb - 6) return peakDb - backgroundDb >= g.riseDb - 5;
+  return true;
+}

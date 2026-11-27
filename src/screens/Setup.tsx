@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { engine } from '../audio/engine';
 import { scheduleClicks } from '../audio/metronome';
 import { loopbackLatency, strumAlongLatency, CalibrationResult } from '../audio/latency';
@@ -92,6 +92,7 @@ function alertError(e: unknown) { console.error(micErrorText(e)); }
 function SpeakerTest({ disabled }: { disabled: boolean }) {
   const { settings } = useStore();
   const [state, setState] = useState<'idle' | 'running'>('idle');
+  const cancelRef = useRef<() => void>(() => {});
   const [res, setRes] = useState<CalibrationResult | null>(null);
   const run = async () => {
     const wasOn = engine.running;
@@ -99,7 +100,8 @@ function SpeakerTest({ disabled }: { disabled: boolean }) {
     const ctx = engine.ctx!;
     setState('running'); setRes(null);
     const t0 = ctx.currentTime + 0.4;
-    const { times } = scheduleClicks(ctx, t0, 8, 0.4, 8, 0.9);
+    const { times, cancel } = scheduleClicks(ctx, t0, 8, 0.4, 8, 0.9);
+    cancelRef.current = cancel;
     const sr = engine.sampleRate;
     const from = Math.round(t0 * sr) - sr / 2;
     const end = Math.round((times[7] + 0.6) * sr);
@@ -120,7 +122,7 @@ function SpeakerTest({ disabled }: { disabled: boolean }) {
       {disabled
         ? <p className="small muted">Not needed with headphones (the mic can't hear them). Use the strum-along test.</p>
         : state === 'running'
-          ? <button className="btn stop" onClick={stopMic}>Stop</button>
+          ? <button className="btn stop" onClick={() => { cancelRef.current(); stopMic(); }}>Stop</button>
           : <button className="btn" onClick={run}>Run speaker test</button>}
       {settings.loopbackMs != null && <p className="small">Last result: <strong>{settings.loopbackMs} ms</strong></p>}
       {res && <p className={`note ${res.ok ? 'ok' : 'warn'}`}>{res.ok ? `Measured ${res.latencyMs} ms. ` : ''}{res.detail}</p>}
@@ -131,6 +133,7 @@ function SpeakerTest({ disabled }: { disabled: boolean }) {
 function StrumAlongTest() {
   const { settings } = useStore();
   const [beat, setBeat] = useState<number | null>(null);
+  const cancelRef = useRef<() => void>(() => {});
   const [res, setRes] = useState<CalibrationResult | null>(null);
   const run = async () => {
     const wasOn = engine.running;
@@ -139,7 +142,8 @@ function StrumAlongTest() {
     setRes(null);
     const interval = 0.75; // 80 bpm
     const t0 = ctx.currentTime + 0.5;
-    const { times } = scheduleClicks(ctx, t0, 12, interval, 4, 0.6);
+    const { times, cancel } = scheduleClicks(ctx, t0, 12, interval, 4, 0.6);
+    cancelRef.current = cancel;
     const sr = engine.sampleRate;
     const timer = setInterval(() => {
       const i = Math.floor((ctx.currentTime - t0) / interval);
@@ -164,7 +168,7 @@ function StrumAlongTest() {
       <p className="small">The microphone is on only while this runs (about 10 seconds). You'll hear 4 count-in clicks, then 8 more. Strum any chord, firmly, exactly on each of the 8. (Mute the strings with your hand if you like; it just needs a sharp sound.)</p>
       {beat === null
         ? <button className="btn primary" onClick={run}>Run strum-along test</button>
-        : <button className="btn stop" onClick={stopMic}>Stop</button>}
+        : <button className="btn stop" onClick={() => { cancelRef.current(); stopMic(); }}>Stop</button>}
       {beat !== null && (
         <div className="count-dots" aria-live="polite">
           {Array.from({ length: 12 }, (_, i) => <span key={i} className={`cd ${i < 4 ? 'countin' : ''} ${i === beat ? 'now' : ''}`}>{i < 4 ? 4 - i : 'strum'}</span>)}

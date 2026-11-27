@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { engine } from './engine';
-import { OnsetDetector, isStrum } from './onset';
+import { OnsetDetector, isStrum, isPluck } from './onset';
 import { THRESHOLDS } from '../content';
 import { store } from '../storage/store';
 import { useEngineState } from '../ui';
@@ -9,7 +9,7 @@ import { useEngineState } from '../ui';
  * Calls onStrum(frame) whenever a real strum is detected live from the microphone.
  * Small sounds (taps, fingers moving, room noise) are ignored; onIgnored is told about them.
  */
-export function useStrums(onStrum: (frame: number) => void, active = true, onIgnored?: () => void) {
+export function useStrums(onStrum: (frame: number) => void, active = true, onIgnored?: () => void, mode: 'strum' | 'pluck' = 'strum') {
   const cb = useRef(onStrum);
   cb.current = onStrum;
   const ig = useRef(onIgnored);
@@ -18,7 +18,8 @@ export function useStrums(onStrum: (frame: number) => void, active = true, onIgn
   useEffect(() => {
     if (!active || !running) return;
     const sr = engine.sampleRate;
-    const det = new OnsetDetector({ sampleRate: sr, minGapMs: THRESHOLDS.onset.minGapMs, sensitivity: THRESHOLDS.onset.sensitivity });
+    const det = new OnsetDetector({ sampleRate: sr, minGapMs: THRESHOLDS.onset.minGapMs, sensitivity: THRESHOLDS.onset.sensitivity * (mode === 'pluck' ? 1.5 : 1) });
+    const gate = mode === 'pluck' ? isPluck : isStrum;
     let alive = true;
     const off = engine.subscribe((chunk, start) => {
       if (start < 0) return;
@@ -27,11 +28,11 @@ export function useStrums(onStrum: (frame: number) => void, active = true, onIgn
         engine.waitForFrame(o.frame + Math.round(0.16 * sr), 2000).then(() => {
           if (!alive) return;
           const sig = engine.getRange(o.frame - Math.round(0.6 * sr), o.frame + Math.round(0.16 * sr));
-          if (isStrum(sig, sr, Math.round(0.6 * sr), store.get().settings.sensitivity)) cb.current(o.frame);
+          if (gate(sig, sr, Math.round(0.6 * sr), store.get().settings.sensitivity)) cb.current(o.frame);
           else ig.current?.();
         }).catch(() => {});
       }
     });
     return () => { alive = false; off(); };
-  }, [active, running]);
+  }, [active, running, mode]);
 }
