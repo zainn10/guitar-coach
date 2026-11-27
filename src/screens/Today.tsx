@@ -14,6 +14,7 @@ import { TabView } from '../visuals/Tab';
 import { TroubleLink, troublesFor } from './Help';
 import { Card, useStore, stopMic } from '../ui';
 import { streak, minutesOn } from './Progress';
+import { folderSupported } from '../storage/folder';
 
 const LENGTHS: { m: number | 'open'; label: string; desc: string }[] = [
   { m: 5, label: '5 min', desc: 'Weakest spot, then a song' },
@@ -85,6 +86,12 @@ export function Today() {
                 <div className="stage-bar" aria-label={`Stage ${curStage.stage.n}: ${curStage.passed} of ${curStage.total} lessons passed`}>
                   {curStage.stage.lessons.map(id => <span key={id} className={d.lessons[id]?.status === 'passed' ? 'done' : id === lesson.id ? 'now' : ''} />)}
                 </div>
+              </Card>
+            )}
+            {!folderSupported() && (
+              <Card title="On your phone">
+                <p className="small">Keep this phone and your Mac in step through the iCloud Guitar Coach folder.</p>
+                <a className="btn" href="#settings">Sync with your Mac</a>
               </Card>
             )}
             <Card title="Your weakest areas right now">

@@ -4,6 +4,7 @@ import { scheduleClicks } from '../audio/metronome';
 import { loopbackLatency, strumAlongLatency, CalibrationResult } from '../audio/latency';
 import { store, effectiveLatency } from '../storage/store';
 import { chooseFolder, folderPermission, folderSupported, forgetFolder, getFolder, saveFile, subscribeFolder } from '../storage/folder';
+import { syncFromFolder, savePhoneBackup, MAC_FILE, PHONE_FILE } from '../storage/sync';
 import { Card, LevelMeter, MicGate, startMic, stopMic, useEngineState, useStore, micErrorText, StopListening } from '../ui';
 import { useStrums } from '../audio/useStrums';
 import type { Sensitivity } from '../audio/onset';
@@ -72,6 +73,8 @@ export function Setup() {
           <StrumAlongTest />
         </div>
       </Card>
+
+      <SyncCard />
 
       <BackupCard />
 
@@ -232,7 +235,7 @@ function BackupCard() {
   return (
     <Card title="Your Guitar Coach folder">
       <p>Choose one folder for everything Guitar Coach saves: sound recordings go in <strong>Recordings</strong>, progress backups in <strong>Backups</strong>. We suggest <strong>Documents → Claude → Guitar Coach</strong>.</p>
-      {!folderSupported() && <p className="note warn">This needs Google Chrome. Files will go to your Downloads folder instead.</p>}
+      {!folderSupported() && <p className="note ok">On your phone, saving opens the share sheet: tap <strong>Save to Files</strong>, then choose the Guitar Coach folder in iCloud Drive (and its Recordings or Backups folder). Your phone remembers the last folder you picked.</p>}
       {folderSupported() && (
         folderName ? (
           <div className="row wrap">
@@ -288,6 +291,43 @@ function ClaudeKeyCard() {
           <input id="claude-key" type="password" className="search" placeholder="sk-ant-…" value={val} onChange={e => setVal(e.target.value.trim())} autoComplete="off" />
           <button className="btn primary" disabled={!val.startsWith('sk-ant-')} onClick={() => { store.setSettings({ claudeKey: val }); setVal(''); }}>Save key</button>
         </div>}
+    </Card>
+  );
+}
+
+export function SyncCard() {
+  const d = useStore();
+  const [msg, setMsg] = useState<string | null>(null);
+  const phone = !folderSupported();
+  const last = Object.entries(d.syncedFrom ?? {}).map(([dev, t]) => `${dev === 'phone' ? 'phone' : dev === 'mac' ? 'Mac' : dev}: ${new Date(t).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`).join(' · ');
+  return (
+    <Card title={phone ? 'Sync with your Mac' : 'Sync with your phone'}>
+      {phone ? (
+        <>
+          <p>Your progress syncs through the Guitar Coach folder in iCloud Drive. Two taps:</p>
+          <div className="row wrap">
+            <label className="btn primary">
+              1. Load progress from the Mac
+              <input type="file" accept="application/json,.json" hidden onChange={async e => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                try { const r = store.mergeJson(await f.text()); setMsg(r.changed ? 'Done: the Mac\'s progress is merged in.' : 'Already up to date with that file.'); }
+                catch (err) { setMsg((err as Error).message); }
+                e.target.value = '';
+              }} />
+            </label>
+            <button className="btn primary" onClick={async () => { const r = await savePhoneBackup(); if (r !== 'skipped') setMsg('Saved. Next time the Mac app opens, it picks this up.'); }}>2. Save phone progress to the folder</button>
+          </div>
+          <p className="small muted">For step 1, choose <strong>Guitar Coach / Backups / {MAC_FILE}</strong>. For step 2, choose <strong>Save to Files</strong> and the same Backups folder, keeping the name {PHONE_FILE} (replace the old one if asked).</p>
+        </>
+      ) : (
+        <>
+          <p>The Mac keeps <strong>Backups/{MAC_FILE}</strong> up to date in your Guitar Coach folder and, each time it opens, merges in <strong>Backups/{PHONE_FILE}</strong> if your phone has saved a newer one. Nothing is ever lost on either side.</p>
+          <button className="btn" onClick={async () => setMsg(await syncFromFolder(true))}>Sync now</button>
+        </>
+      )}
+      {last && <p className="small muted">Last synced from {last}</p>}
+      {msg && <p className="note ok" role="status">{msg}</p>}
     </Card>
   );
 }

@@ -98,7 +98,9 @@ export function App() {
       </header>
       {newer && (
         <div className="update-bar" role="status">
-          A new version of Guitar Coach is ready. Close this window and open Guitar Coach again to get it.
+          {location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+            ? <>A new version of Guitar Coach is ready. Close this window and open Guitar Coach again to get it.</>
+            : <>A new version of Guitar Coach is ready. <button className="btn small" onClick={() => location.reload()}>Update now</button></>}
           <button className="btn link" onClick={() => setNewer(null)}>Later</button>
         </div>
       )}

@@ -72,7 +72,21 @@ async function writeInto(dir: DirHandle, sub: string, name: string, blob: Blob) 
  * Falls back to a normal download if no folder is set up or Chrome won't allow it.
  * `interactive` = called from a click, so we may ask Chrome for permission.
  */
-export async function saveFile(sub: string, name: string, blob: Blob, interactive = true): Promise<'folder' | 'download' | 'skipped'> {
+export async function saveFile(sub: string, name: string, blob: Blob, interactive = true): Promise<'folder' | 'download' | 'shared' | 'skipped'> {
+  // Phones can't write into folders: open the share sheet straight away (it must happen
+  // right after the tap), where "Save to Files" lets you pick the iCloud Guitar Coach folder.
+  if (!folderSupported()) {
+    if (!interactive) return 'skipped';
+    const file = new File([blob], name, { type: blob.type || 'application/octet-stream' });
+    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean };
+    if (nav.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); announce(`Choose "Save to Files", then your Guitar Coach folder${sub ? ' → ' + sub : ''}.`); return 'shared'; }
+      catch (e) { if ((e as Error).name === 'AbortError') return 'skipped'; }
+    }
+    downloadBlob(blob, name);
+    announce(`Saved to Downloads: ${name}`);
+    return 'download';
+  }
   const dir = await getFolder();
   if (dir) {
     try {
@@ -95,3 +109,17 @@ export async function saveFile(sub: string, name: string, blob: Blob, interactiv
 export const saveRecording = (blob: Blob, name: string) => saveFile('Recordings', name, blob);
 
 function announce(text: string) { window.dispatchEvent(new CustomEvent('gc-saved', { detail: text })); }
+
+/** Read a file from the Guitar Coach folder (Mac), e.g. Backups/phone-backup.json. */
+export async function readFolderFile(sub: string, name: string, interactive = false): Promise<string | null> {
+  const dir = await getFolder();
+  if (!dir) return null;
+  try {
+    let perm = await dir.queryPermission({ mode: 'readwrite' });
+    if (perm === 'prompt' && interactive) perm = await dir.requestPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') return null;
+    const d = sub ? await dir.getDirectoryHandle(sub) : dir;
+    const fh = await d.getFileHandle(name);
+    return await (await fh.getFile()).text();
+  } catch { return null; }
+}

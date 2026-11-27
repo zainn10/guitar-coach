@@ -69,6 +69,12 @@ export interface Data {
   path?: 'flamenco' | 'fingerstyle' | 'lead';
   lastLesson?: string;
   startedAt: number;
+  /** which device this copy lives on ('mac' or 'phone'), for syncing via the iCloud folder */
+  device?: string;
+  /** practice seconds per day recorded on OTHER devices (copied in when syncing) */
+  practiceOthers?: Record<string, Record<string, number>>;
+  /** when we last merged each other device's backup (its export time) */
+  syncedFrom?: Record<string, string>;
 }
 
 const KEY = 'guitar-coach.v0';
@@ -92,6 +98,22 @@ function load(): Data {
 }
 
 let data = load();
+if (!data.device) {
+  data = { ...data, device: typeof window !== 'undefined' && 'showDirectoryPicker' in window ? 'mac' : 'phone' };
+  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* ignore */ }
+}
+
+/** Practice seconds on a day, from every device. */
+export function practiceOn(d: Data, day: string) {
+  let s = d.practice[day] ?? 0;
+  for (const other of Object.values(d.practiceOthers ?? {})) s += other[day] ?? 0;
+  return s;
+}
+export function allPracticeDays(d: Data) {
+  const days = new Set(Object.keys(d.practice));
+  for (const o of Object.values(d.practiceOthers ?? {})) Object.keys(o).forEach(k => days.add(k));
+  return [...days];
+}
 const subs = new Set<() => void>();
 
 function save() {
@@ -191,7 +213,21 @@ export const store = {
   exportJson() {
     const { claudeKey: _omit, ...settings } = data.settings;
     void _omit;
-    return JSON.stringify({ app: 'guitar-coach', version: 1, exported: new Date().toISOString(), data: { ...data, settings } }, null, 2);
+    const { session: _s, ...rest } = data;
+    void _s;
+    return JSON.stringify({ app: 'guitar-coach', version: 1, exported: new Date().toISOString(), data: { ...rest, settings } }, null, 2);
+  },
+  /** Combine another device's backup into this one (nothing is lost on either side). */
+  mergeJson(text: string): { from: string; changed: boolean } {
+    const parsed = JSON.parse(text);
+    if (parsed?.app !== 'guitar-coach' || !parsed.data) throw new Error("That file isn't a Guitar Coach backup.");
+    const r = parsed.data as Data;
+    const from = r.device ?? 'other';
+    if (from === data.device) throw new Error('That backup came from this same device. On the other device, save its backup, then sync it here.');
+    if (data.syncedFrom?.[from] && data.syncedFrom[from] >= parsed.exported) return { from, changed: false };
+    data = mergeData(data, r, parsed.exported);
+    save();
+    return { from, changed: true };
   },
   importJson(text: string) {
     const parsed = JSON.parse(text);
@@ -215,4 +251,54 @@ export function masteryState(attempts: ChordAttempt[] | undefined, clean: number
   const last = (attempts ?? []).slice(-outOf);
   const n = last.filter(a => a.verdict === 'clean').length;
   return { last, cleanCount: n, passed: last.length >= outOf && n >= clean };
+}
+
+const byT = <T extends { t: number }>(a: T[] = [], b: T[] = [], key: (x: T) => string = x => String(x.t)) => {
+  const m = new Map<string, T>();
+  for (const x of [...a, ...b]) m.set(key(x), x);
+  return [...m.values()].sort((x, y) => x.t - y.t);
+};
+
+/** Merge rules: keep everything from both sides; passed stays passed; newest item state wins. */
+export function mergeData(local: Data, r: Data, exported: string): Data {
+  const attempts = { ...local.attempts };
+  for (const [k, v] of Object.entries(r.attempts ?? {})) attempts[k] = byT(attempts[k], v).slice(-30);
+  const lessons = { ...local.lessons };
+  for (const [k, v] of Object.entries(r.lessons ?? {})) {
+    const l = lessons[k];
+    if (!l) { lessons[k] = v; continue; }
+    const checks = { ...(v.checks ?? {}) };
+    for (const [i, ok] of Object.entries(l.checks ?? {})) checks[+i] = checks[+i] || ok;
+    lessons[k] = {
+      status: l.status === 'passed' || v.status === 'passed' ? 'passed' : 'started',
+      passedAt: [l.passedAt, v.passedAt].filter((x): x is number => !!x).sort()[0],
+      checks, attempts: byT(l.attempts, v.attempts).slice(-30),
+    };
+  }
+  const items = { ...local.items };
+  for (const [k, v] of Object.entries(r.items ?? {})) {
+    const l = items[k];
+    if (!l) { items[k] = v; continue; }
+    const newer = v.last > l.last ? v : l;
+    items[k] = { ...newer, count: Math.max(l.count, v.count), history: byT(l.history, v.history).slice(-60) };
+  }
+  const ladders = { ...local.ladders };
+  for (const [k, v] of Object.entries(r.ladders ?? {})) {
+    const l = ladders[k];
+    ladders[k] = !l ? v : { bpm: Math.max(l.bpm, v.bpm), cleanReps: l.cleanReps, best: Math.max(l.best, v.best) };
+  }
+  const from = r.device ?? 'other';
+  const practiceOthers = { ...(local.practiceOthers ?? {}) };
+  practiceOthers[from] = r.practice ?? {};
+  for (const [dev, p] of Object.entries(r.practiceOthers ?? {})) if (dev !== local.device) practiceOthers[dev] = p;
+  return {
+    ...local,
+    attempts, lessons, items, ladders, practiceOthers,
+    takes: byT(local.takes, r.takes, x => `${x.t}-${x.song}`).slice(-200),
+    drills: byT(local.drills, r.drills, x => `${x.t}-${x.from}-${x.to}`).slice(-500),
+    quizzes: byT(local.quizzes, r.quizzes).slice(-300),
+    startedAt: Math.min(local.startedAt, r.startedAt ?? local.startedAt),
+    path: local.path ?? r.path,
+    syncedFrom: { ...(local.syncedFrom ?? {}), [from]: exported },
+  };
 }

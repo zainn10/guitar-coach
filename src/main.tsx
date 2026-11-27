@@ -3,6 +3,7 @@ import { App } from './App';
 import './styles.css';
 import { store } from './storage/store';
 import { saveFile } from './storage/folder';
+import { syncFromFolder } from './storage/sync';
 
 // Keep Backups/latest-backup.json in your Guitar Coach folder up to date (silently;
 // only if you've already allowed the folder, so it never pops up a permission box).
@@ -15,3 +16,8 @@ store.subscribe(() => {
 });
 
 createRoot(document.getElementById('root')!).render(<App />);
+
+// On the Mac: pick up progress saved from the phone into the iCloud folder.
+setTimeout(() => {
+  syncFromFolder(false).then(msg => { if (msg) window.dispatchEvent(new CustomEvent('gc-saved', { detail: msg })); });
+}, 1500);

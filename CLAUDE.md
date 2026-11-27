@@ -9,7 +9,11 @@ Personal context about the user is deliberately NOT kept in this public reposito
   (`packaging/server.pl`, 127.0.0.1:47819, so Chrome keeps mic permission) and opens Chrome in app mode.
 - Auto-update: the launcher downloads `release/app.html` + `release/version.txt` from `main`.
   Only the sandboxed page auto-updates; the launcher and server.pl never do (by design).
-- Publish: `npm test && npm run release`, commit `release/`, push to `main`.
+- Publish: `npm test && npm run release`, commit `release/` and `docs/`, push to `main`.
+- Web/phone version: GitHub Pages serves `docs/` (https://zainn10.github.io/guitar-coach/).
+- Sync between devices goes through the user's folder: Mac auto-writes `Backups/latest-backup.json`
+  and merges `Backups/phone-backup.json` on open; the phone loads/saves those files manually
+  (`src/storage/sync.ts`, merge rules in `mergeData` in `src/storage/store.ts`).
 - Data lives in the browser (localStorage `guitar-coach.v0`), optionally mirrored to a user-chosen
   folder via the File System Access API (Recordings/, Backups/latest-backup.json).
 

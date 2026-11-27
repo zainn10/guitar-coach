@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Data, today } from '../storage/store';
+import { Data, today, practiceOn, allPracticeDays } from '../storage/store';
 import { stageProgress, knownChords } from '../engine/course';
 import { rankedItems } from '../engine/session';
 import { changeKey } from '../engine/progress';
@@ -10,16 +10,16 @@ import { Card, useStore } from '../ui';
 import { labelFor } from './Today';
 import { GoalReadiness } from './Goals';
 
-export const minutesOn = (d: Data, day: string) => Math.round((d.practice[day] ?? 0) / 60);
+export const minutesOn = (d: Data, day: string) => Math.round(practiceOn(d, day) / 60);
 
 /** Days in a row with at least 5 minutes of practice (today counts if done; otherwise it ends yesterday). */
 export function streak(d: Data) {
   let n = 0;
   const day = new Date();
-  if ((d.practice[today()] ?? 0) < 300) day.setDate(day.getDate() - 1);
+  if (practiceOn(d, today()) < 300) day.setDate(day.getDate() - 1);
   for (;;) {
     const k = today(day.getTime());
-    if ((d.practice[k] ?? 0) >= 300) { n++; day.setDate(day.getDate() - 1); } else break;
+    if (practiceOn(d, k) >= 300) { n++; day.setDate(day.getDate() - 1); } else break;
   }
   return n;
 }
@@ -27,7 +27,7 @@ export function streak(d: Data) {
 export function Progress() {
   const d = useStore();
   const days = Array.from({ length: 28 }, (_, i) => { const t = new Date(); t.setDate(t.getDate() - 27 + i); return today(t.getTime()); });
-  const total = Math.round(Object.values(d.practice).reduce((a, b) => a + b, 0) / 60);
+  const total = Math.round(allPracticeDays(d).reduce((a, k) => a + practiceOn(d, k), 0) / 60);
   const pairs = [...new Set(d.drills.map(r => changeKey(r.from, r.to)))];
   const [pair, setPair] = useState(pairs[pairs.length - 1] ?? '');
   const drillData = d.drills.filter(r => changeKey(r.from, r.to) === pair).slice(-20)
