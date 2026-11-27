@@ -1,7 +1,37 @@
 {
   "_about": "All pass marks and detection settings in one place. Change a number here to make a check easier or harder.",
   "mastery": {
-    "cleanChord": { "clean": 4, "outOf": 5 }
+    "cleanChord": {
+      "clean": 4,
+      "outOf": 5
+    },
+    "changes": {
+      "_about": "Clean chord changes per minute needed to pass a change drill. Core pairs get the higher bar.",
+      "default": 25,
+      "pairs": {
+        "Am>Em": 30,
+        "A>D": 30,
+        "A>E": 30,
+        "D>G": 25,
+        "C>G": 25,
+        "Am>C": 25,
+        "C>Fmaj7": 25,
+        "Am>Dm": 25,
+        "E>Fflam": 30,
+        "Bm>F": 15,
+        "Bm>Fsharp": 15,
+        "Dm7>Gm7": 20
+      }
+    },
+    "song": {
+      "minGreen": 0.75
+    },
+    "strum": {
+      "accuracy": 0.8
+    },
+    "quiz": {
+      "pass": 0.8
+    }
   },
   "chordCheck": {
     "analysisStartMs": 70,
@@ -26,6 +56,7 @@
   },
   "tuner": {
     "inTuneCents": 5,
-    "closeCents": 15
+    "closeCents": 15,
+    "holdReadings": 6
   }
 }

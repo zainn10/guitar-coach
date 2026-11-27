@@ -64,3 +64,25 @@ describe('string-by-string check', () => {
     expect(r.strings.filter(s => s.status === 'ok')).toHaveLength(4);
   });
 });
+
+import { analyseNoteSequence } from '../../src/audio/stringCheck';
+describe('note sequence check (warm-ups, scales, melodies)', () => {
+  it('confirms a correct 1-2-3-4 warm-up and spots one wrong fret', () => {
+    const expected = [41, 42, 43, 44, 46, 47, 48, 49]; // 6th string frets 1-4, 5th string frets 1-4
+    for (const wrongAt of [-1, 2]) {
+      const sig = new Float32Array(SR * 7);
+      const onsets: number[] = [];
+      expected.forEach((m, i) => {
+        const at = Math.round((0.5 + i * 0.6) * SR);
+        onsets.push(at);
+        addPluck(sig, SR, at, midiToFreq(i === wrongAt ? m + 1 : m), { gain: 0.2, seed: i + 3 });
+      });
+      addRoomNoise(sig, SR, 0.001, 4);
+      const sigHp = highpass(sig, SR, 150);
+      const detected = detectOnsets(sigHp, SR, { sensitivity: 1.5 }).map(o => o.frame);
+      const r = analyseNoteSequence(sigHp, SR, detected, expected);
+      expect(r.filter(x => !x.ok).map((x, i) => i), `wrongAt ${wrongAt}`).toHaveLength(wrongAt < 0 ? 0 : 1);
+      if (wrongAt >= 0) expect(r[wrongAt].ok).toBe(false);
+    }
+  });
+});

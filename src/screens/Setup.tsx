@@ -25,8 +25,8 @@ export function Setup() {
   return (
     <div className="stack">
       <header className="page-head">
-        <h1>Setup</h1>
-        <p className="lead">Three quick steps so the app can hear your guitar properly and judge your timing fairly.</p>
+        <h1>Settings</h1>
+        <p className="lead">Set up the microphone and timing once (three quick steps), and choose where your files are saved.</p>
       </header>
 
       <Card title={<><span className="step">1</span> Microphone</>}>
@@ -74,6 +74,13 @@ export function Setup() {
       </Card>
 
       <BackupCard />
+
+      <ClaudeKeyCard />
+
+      <Card title="Diagnostics">
+        <p>Record short examples, check what the app hears, and save sound files to send for tuning the detection.</p>
+        <a className="btn" href="#settings/diagnostics">Open diagnostics</a>
+      </Card>
 
       <Card title="What the listening can and can't do" className="honest">
         <ul>
@@ -260,6 +267,27 @@ function BackupCard() {
         </label>
       </div>
       {msg && <p className="note ok" role="status">{msg}</p>}
+    </Card>
+  );
+}
+
+function ClaudeKeyCard() {
+  const { settings } = useStore();
+  const [val, setVal] = useState('');
+  return (
+    <Card title="Ask Claude (optional)">
+      <p>The "Ask Claude" buttons send what you're working on and your recent results to Claude for a personal tip. They need your own Anthropic API key. Each question costs a fraction of a penny, billed to your Anthropic account.</p>
+      <ul className="small">
+        <li>Get a key at console.anthropic.com → API keys. Set a low monthly spend limit there for peace of mind.</li>
+        <li>The key is stored only inside Chrome on this Mac and is never included in backup files.</li>
+        <li>Nothing is sent unless you press an Ask button. Recordings are never sent.</li>
+      </ul>
+      {settings.claudeKey
+        ? <div className="row wrap"><span className="note ok">Key saved (ending …{settings.claudeKey.slice(-4)}).</span><button className="btn" onClick={() => store.setSettings({ claudeKey: undefined })}>Remove key</button></div>
+        : <div className="row wrap">
+          <input id="claude-key" type="password" className="search" placeholder="sk-ant-…" value={val} onChange={e => setVal(e.target.value.trim())} autoComplete="off" />
+          <button className="btn primary" disabled={!val.startsWith('sk-ant-')} onClick={() => { store.setSettings({ claudeKey: val }); setVal(''); }}>Save key</button>
+        </div>}
     </Card>
   );
 }

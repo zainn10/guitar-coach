@@ -1,0 +1,31 @@
+{
+  "id": "campfire-four",
+  "title": "Campfire Four",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 3,
+  "bpm": 85,
+  "startBpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DU-UDU",
+  "bars": [
+    "G",
+    "Em",
+    "C",
+    "D",
+    "G",
+    "Em",
+    "C",
+    "D",
+    "G",
+    "Em",
+    "C",
+    "D",
+    "C",
+    "D",
+    "G",
+    "G"
+  ],
+  "notes": "The four most-used chords in popular music, with the 'universal' strumming pattern."
+}

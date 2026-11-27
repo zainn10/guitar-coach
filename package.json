@@ -10,9 +10,11 @@
     "mac-app": "bash packaging/make-mac-app.sh packaging/icons"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
     "pitchy": "^4.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "yaml": "^2.6.1"
   },
   "devDependencies": {
     "@types/node": "^22.20.7",

@@ -1,0 +1,23 @@
+{
+  "id": "drunken-sailor",
+  "title": "Drunken Sailor",
+  "credit": "Traditional (sea shanty)",
+  "kind": "traditional",
+  "stage": 3,
+  "bpm": 100,
+  "startBpm": 70,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-DU",
+  "bars": [
+    "Dm",
+    "Dm",
+    "C",
+    "C",
+    "Dm",
+    "Dm",
+    "Am Dm",
+    "Dm"
+  ],
+  "notes": "A lively shanty. Bar 7 has two chords: Am for two beats, then Dm."
+}

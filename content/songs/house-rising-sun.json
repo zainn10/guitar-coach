@@ -1,0 +1,31 @@
+{
+  "id": "house-rising-sun",
+  "title": "House of the Rising Sun",
+  "credit": "Traditional",
+  "kind": "traditional",
+  "stage": 3,
+  "bpm": 80,
+  "startBpm": 60,
+  "beatsPerBar": 3,
+  "countInBars": 1,
+  "pattern": "D-DUDU",
+  "bars": [
+    "Am",
+    "C",
+    "D",
+    "Fmaj7",
+    "Am",
+    "C",
+    "E",
+    "E",
+    "Am",
+    "C",
+    "D",
+    "Fmaj7",
+    "Am",
+    "E",
+    "Am",
+    "Am"
+  ],
+  "notes": "A traditional song in 3/4 (often counted in 6/8). Easy F (Fmaj7) stands in for F. Chords only."
+}

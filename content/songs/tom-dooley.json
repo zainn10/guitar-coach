@@ -1,0 +1,31 @@
+{
+  "id": "tom-dooley",
+  "title": "Tom Dooley",
+  "credit": "Traditional (American folk)",
+  "kind": "traditional",
+  "stage": 2,
+  "bpm": 90,
+  "startBpm": 65,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-D-",
+  "bars": [
+    "D",
+    "D",
+    "D",
+    "A",
+    "A",
+    "A",
+    "A",
+    "D",
+    "D",
+    "D",
+    "D",
+    "A",
+    "A",
+    "A",
+    "D",
+    "D"
+  ],
+  "notes": "A classic two-chord folk song. Chords only."
+}

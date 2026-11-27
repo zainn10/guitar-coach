@@ -1,0 +1,23 @@
+{
+  "id": "flamenco-home",
+  "title": "Coming Home (flamenco colour)",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 2,
+  "bpm": 70,
+  "startBpm": 55,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-D-",
+  "bars": [
+    "E",
+    "Fflam",
+    "E",
+    "E",
+    "Am",
+    "Fflam",
+    "E",
+    "E"
+  ],
+  "notes": "E is home; the E-shape-up-a-fret chord pulls back to it. Strum with intention: this is the flamenco sound."
+}

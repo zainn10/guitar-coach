@@ -1,0 +1,25 @@
+{
+  "_about": "The order of stages and lessons. Each lesson id must match a file in content/lessons/.",
+  "stages": [
+    { "n": 1, "title": "Foundations", "intro": "Hold the guitar, know your fingers and strings, tune up, read diagrams and tab, and play your first two chords.",
+      "lessons": ["s1-01-meet", "s1-02-holding", "s1-03-fingers", "s1-04-tuning", "s1-05-reading", "s1-06-warmup", "s1-07-em", "s1-08-am", "s1-09-em-am", "s1-10-flamenco"] },
+    { "n": 2, "title": "First open chords", "intro": "E, A, D and Dm; down-strums, down-up strumming and counting beats; your first two-chord songs.",
+      "lessons": ["s2-01-e", "s2-02-a", "s2-03-d", "s2-04-dm", "s2-05-counting", "s2-06-down-up", "s2-07-changes", "s2-08-first-songs", "s2-09-flamenco-home"] },
+    { "n": 3, "title": "The full open-chord set", "intro": "G, C and easy F; real strumming patterns; songs with three and four chords; the Andalusian cadence.",
+      "lessons": ["s3-01-g", "s3-02-c", "s3-03-easy-f", "s3-04-g-c", "s3-05-patterns", "s3-06-songs", "s3-07-flamenco-cadence"] },
+    { "n": 4, "title": "Fingerpicking", "intro": "Thumb and fingers (p-i-m-a), arpeggio patterns, simple tab melodies, notes on the low strings, and the rumba.",
+      "lessons": ["s4-01-pima", "s4-02-arpeggios", "s4-03-tab-melody", "s4-04-bass-notes", "s4-05-picking-song", "s4-06-flamenco-rumba"] },
+    { "n": 5, "title": "Moving up the neck", "intro": "Full F and barre chords, power chords, 7th chords, the minor pentatonic scale, bends and slides, and basic rasgueado.",
+      "lessons": ["s5-01-full-f", "s5-02-barre-shapes", "s5-03-power", "s5-04-sevenths", "s5-05-pentatonic", "s5-06-bends-slides", "s5-07-hotel", "s5-08-flamenco-rasgueado"] },
+    { "n": 6, "title": "Understanding", "intro": "Fluent barre chords, keys and why chords belong together, playing by ear, the flamenco scale, fast runs, and your first falseta.",
+      "lessons": ["s6-01-barre-fluency", "s6-02-keys", "s6-03-ear", "s6-04-harmonic-minor", "s6-05-fast-runs", "s6-06-careless", "s6-07-flamenco-falseta", "s6-08-paths"] }
+  ],
+  "paths": [
+    { "id": "flamenco", "title": "Flamenco", "summary": "Compás (rhythm cycles), rasgueado variations, picado scales, alzapúa thumb technique and falsetas.",
+      "next": ["Soleá and bulerías 12-beat compás", "Picado (i-m rest-stroke runs) with the tempo ladder", "Alzapúa thumb technique", "Writing longer falsetas in E Phrygian"] },
+    { "id": "fingerstyle", "title": "Fingerstyle & classical", "summary": "Arpeggio studies, melody with bass, and classical repertoire on the nylon guitar.",
+      "next": ["Spanish Romance (anonymous, public domain)", "Travis picking", "Classical studies by Sor and Carcassi (public domain)", "Rest stroke vs free stroke tone"] },
+    { "id": "lead", "title": "Songs & lead", "summary": "Pentatonic positions across the neck, phrasing with bends and slides, and soloing over progressions.",
+      "next": ["Pentatonic positions 2-5", "Bending accurately to pitch", "Phrasing: call and response", "Learning the Hotel California solo from a licensed source"] }
+  ]
+}

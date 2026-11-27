@@ -1,0 +1,23 @@
+{
+  "id": "two-friends",
+  "title": "Two Friends",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 1,
+  "bpm": 60,
+  "startBpm": 50,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "strumsPerBar": 1,
+  "bars": [
+    "Em",
+    "Em",
+    "Am",
+    "Am",
+    "Em",
+    "Em",
+    "Am",
+    "Em"
+  ],
+  "notes": "Your first piece: one strum per bar, Em and Am. Listen to how Am feels like a step away and Em like coming home."
+}

@@ -41,7 +41,7 @@ function ChordChip({ id, selected, onClick }: { id: string; selected: boolean; o
   );
 }
 
-function ChordCheckBody({ chordId }: { chordId: string }) {
+export function ChordCheckBody({ chordId }: { chordId: string }) {
   const chord = chordById(chordId);
   const { settings, attempts } = useStore();
   const [result, setResult] = useState<ChordResult | null>(null);

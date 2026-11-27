@@ -1,0 +1,23 @@
+{
+  "id": "circle-walk",
+  "title": "Circle Walk",
+  "credit": "Original practice progression (keys)",
+  "kind": "practice",
+  "stage": 6,
+  "bpm": 85,
+  "startBpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DU-UDU",
+  "bars": [
+    "C",
+    "Am",
+    "F",
+    "G",
+    "C",
+    "Am",
+    "Dm",
+    "G"
+  ],
+  "notes": "I-vi-IV-V in the key of C: hear how each chord leads to the next."
+}

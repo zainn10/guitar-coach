@@ -1,0 +1,23 @@
+{
+  "id": "andalusian-steps",
+  "title": "Andalusian Steps",
+  "credit": "Original practice progression (Andalusian cadence)",
+  "kind": "practice",
+  "stage": 3,
+  "bpm": 80,
+  "startBpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-DU",
+  "bars": [
+    "Am",
+    "G",
+    "Fmaj7",
+    "E",
+    "Am",
+    "G",
+    "Fmaj7",
+    "E"
+  ],
+  "notes": "Am-G-F-E: the falling chord sequence at the heart of flamenco and countless Spanish songs."
+}

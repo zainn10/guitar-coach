@@ -155,6 +155,7 @@ export function analyseChord(
   const sp = spectrum(signal, start, len, sampleRate, 32768);
   const early = spectrum(signal, onsetFrame + ms(40), ms(170), sampleRate, 16384);
   const late = spectrum(signal, onsetFrame + ms(360), ms(170), sampleRate, 16384);
+  const before = spectrum(signal, Math.max(0, onsetFrame - ms(190)), ms(170), sampleRate, 16384);
 
   // overall loudness of the chord (strongest peak 75 Hz - 2 kHz)
   let maxMag = 0;
@@ -252,7 +253,9 @@ export function analyseChord(
       const f = midiToFreq(m) * h;
       if (allPartials.some(p => near(p.f, f))) continue;
       const e = evidence(f);
-      if (e.abs > audibleFloor) {
+      // Must be NEW sound from this strum, not the previous chord still ringing.
+      const grew = toDb(peakAt(early, f, 30)) - toDb(peakAt(before, f, 30));
+      if (e.abs > audibleFloor && grew > 6) {
         ev = Math.max(ev, e.db);
         rel = Math.max(rel, toDb(e.lin / amp(h)) - typicalDb);
       }

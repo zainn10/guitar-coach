@@ -59,3 +59,39 @@ describe('play-along scoring', () => {
     expect(describeOffset(-260, 1000)).toBe('about a quarter of a beat early (0.26 s)');
   });
 });
+
+describe('play-along with a strumming pattern and two chords in a bar', () => {
+  const patSong: Song = { id: 'pat', title: 'Pattern test', bpm: 80, beatsPerBar: 4, countInBars: 1, pattern: 'D-D-D-DU', bars: ['G', 'C', 'G D', 'Em'] };
+  function makePatternTake(lateBar?: number, dropUpstrumsBar?: number) {
+    const beat = (60 / patSong.bpm) * SR;
+    const sig = new Float32Array(Math.ceil((patSong.countInBars + patSong.bars.length + 1) * 4 * beat + SR));
+    const downbeats: number[] = [];
+    patSong.bars.forEach((bar, i) => {
+      const exp = Math.round((patSong.countInBars + i) * 4 * beat);
+      downbeats.push(exp);
+      const chords = bar.split(' ');
+      [0, 1, 2, 3, 3.5].forEach((b, k) => {
+        if (b === 2 && dropUpstrumsBar === i + 1) return;
+        const ch = chords.length > 1 && b >= 2 ? chords[1] : chords[0];
+        let at = exp + Math.round(b * beat);
+        if (lateBar === i + 1 && b === 0) at += Math.round(0.5 * beat);
+        addStrum(sig, SR, at, chord(ch), { seed: i * 10 + k, gain: b === 3.5 ? 0.08 : 0.16, direction: b === 3.5 ? 'up' : 'down', spreadMs: b === 3.5 ? 6 : 12 });
+      });
+    });
+    addNoise(sig, 0.0008);
+    return { signal: highpass(sig, SR, 150), downbeats };
+  }
+  it('a steady take is all green', () => {
+    const { signal, downbeats } = makePatternTake();
+    const r = analyseTake({ signal, sampleRate: SR, song: patSong, downbeatFrames: downbeats, library });
+    expect(r.bars.map(b => `${b.status} ${b.messages.join(' ')}`)).toEqual(Array(4).fill('green '));
+  });
+  it('spots a late change and a missing down-strum', () => {
+    const { signal, downbeats } = makePatternTake(2, 4);
+    const r = analyseTake({ signal, sampleRate: SR, song: patSong, downbeatFrames: downbeats, library });
+    expect(r.bars[1].status).toBe('red');
+    expect(r.bars[1].messages[0]).toMatch(/G → C change\): about half a beat late/);
+    expect(r.bars[3].status).toBe('amber');
+    expect(r.bars[3].messages.join(' ')).toMatch(/of 5 strums in the pattern/);
+  });
+});

@@ -1,11 +1,23 @@
 {
-  "_about": "Original practice progression (not a real song). One strum on beat 1 of each bar.",
   "id": "first-steps",
   "title": "First Steps",
   "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 3,
   "bpm": 60,
+  "startBpm": 50,
   "beatsPerBar": 4,
   "countInBars": 1,
   "strumsPerBar": 1,
-  "bars": ["Em", "Em", "Am", "Am", "D", "G", "A", "Em"]
+  "bars": [
+    "Em",
+    "Em",
+    "Am",
+    "Am",
+    "D",
+    "G",
+    "A",
+    "Em"
+  ],
+  "notes": "One strum on beat 1 of each bar. Use the three free beats to get to the next chord."
 }

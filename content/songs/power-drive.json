@@ -1,0 +1,23 @@
+{
+  "id": "power-drive",
+  "title": "Power Drive",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 5,
+  "bpm": 100,
+  "startBpm": 70,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "DDDDDDDD",
+  "bars": [
+    "E5",
+    "E5",
+    "G5",
+    "A5",
+    "E5",
+    "E5",
+    "C5",
+    "A5"
+  ],
+  "notes": "Eighth-note down-strokes on power chords. Try light palm muting near the bridge."
+}

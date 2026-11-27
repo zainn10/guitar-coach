@@ -1,0 +1,32 @@
+{
+  "_about": "Goal pieces and the skills each needs. The app shows how ready you are. Chord progressions only: get the solo and riff themselves from a licensed source.",
+  "goals": [
+    {
+      "id": "hotel-california",
+      "title": "Hotel California (the solo)",
+      "note": "The solo is built from B minor pentatonic and the B harmonic-minor sound, with bends, slides and vibrato, over the chord progression. Get the notes from a licensed tab book or lesson; here you build every skill it needs.",
+      "needs": [
+        { "label": "Play the chord progression (capo 7 version)", "song": "hotel-california-capo" },
+        { "label": "Barre chords: Bm and F♯", "lesson": "s5-02-barre-shapes" },
+        { "label": "Play the progression in the original key", "song": "hotel-california" },
+        { "label": "Minor pentatonic scale box", "lesson": "s5-05-pentatonic" },
+        { "label": "Bends, slides and vibrato", "lesson": "s5-06-bends-slides" },
+        { "label": "Harmonic minor sound", "lesson": "s6-04-harmonic-minor" },
+        { "label": "Fast, clean runs", "lesson": "s6-05-fast-runs" }
+      ]
+    },
+    {
+      "id": "careless-whisper",
+      "title": "Careless Whisper (the riff)",
+      "note": "The riff is a fast descending run over a minor-key progression. Get the notes from a licensed source; here you build the speed, accuracy and harmony it needs.",
+      "needs": [
+        { "label": "Seventh chords", "lesson": "s5-04-sevenths" },
+        { "label": "Fluent barre chords (Gm7, B♭maj7)", "lesson": "s6-01-barre-fluency" },
+        { "label": "Play the chord progression", "song": "careless-whisper" },
+        { "label": "Keys: why these chords go together", "lesson": "s6-02-keys" },
+        { "label": "Harmonic minor sound", "lesson": "s6-04-harmonic-minor" },
+        { "label": "Fast descending runs at tempo", "lesson": "s6-05-fast-runs" }
+      ]
+    }
+  ]
+}

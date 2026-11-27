@@ -30,7 +30,7 @@ const FINGER: Record<number, string> = { 1: 'index', 2: 'middle', 3: 'ring', 4: 
 const ORD: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th', 6: '6th' };
 
 /** Spectrum of what's new after the onset (after minus before, never negative). */
-function newSound(signal: Float32Array, sr: number, onset: number): { sp: Spectrum; level: number } {
+export function newSound(signal: Float32Array, sr: number, onset: number): { sp: Spectrum; level: number } {
   const len = Math.round(0.2 * sr);
   const after = spectrum(signal, onset + Math.round(0.03 * sr), len, sr, 16384);
   const before = spectrum(signal, Math.max(0, onset - len - Math.round(0.015 * sr)), len, sr, 16384);
@@ -148,4 +148,27 @@ export function analysePlucks(signal: Float32Array, sr: number, onsets: number[]
     ? `Every string of ${chord.id} rang clearly. Lovely.`
     : `${sounding.length - bad.length} of ${sounding.length} strings clear. Fix: ${bad.map(b => ORD[b.string]).join(', ')} string${bad.length > 1 ? 's' : ''}.`;
   return { strings: reports, clean: bad.length === 0, summary, extraPlucks };
+}
+
+export interface NoteResult { expected: number; heard: number | null; ok: boolean }
+
+/** Checks a played sequence of single notes (e.g. a warm-up, scale or melody) against what was expected. */
+export function analyseNoteSequence(signal: Float32Array, sr: number, onsets: number[], expected: number[]): NoteResult[] {
+  const cands = new Set<number>();
+  for (const m of expected) for (let d = -2; d <= 2; d++) if (m + d >= 38) cands.add(m + d);
+  const heard = onsets.map(o => {
+    const { sp } = newSound(signal, sr, o);
+    const id = identifyNote(sp, [...cands]);
+    return id ? id.midi : null;
+  });
+  // Align in order, allowing for an extra stray pluck: greedy match.
+  const out: NoteResult[] = [];
+  let j = 0;
+  for (const m of expected) {
+    let found: number | null = null;
+    for (let k = j; k < Math.min(heard.length, j + 2); k++) if (heard[k] === m) { found = k; break; }
+    if (found !== null) { out.push({ expected: m, heard: m, ok: true }); j = found + 1; }
+    else { out.push({ expected: m, heard: heard[j] ?? null, ok: false }); if (j < heard.length) j++; }
+  }
+  return out;
 }

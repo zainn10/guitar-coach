@@ -1,0 +1,24 @@
+{
+  "id": "hotel-california-capo",
+  "title": "Hotel California: chord progression (capo 7)",
+  "credit": "Chord progression only (Eagles). No melody, solo or lyrics.",
+  "kind": "goal",
+  "stage": 4,
+  "bpm": 74,
+  "startBpm": 50,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "capo": 7,
+  "pattern": "D-DU-UDU",
+  "bars": [
+    "Em",
+    "B7",
+    "D",
+    "A",
+    "C",
+    "G",
+    "Am",
+    "B7"
+  ],
+  "notes": "Capo on the 7th fret and these easy shapes sound in the original key. Get the solo from a licensed source; this builds the rhythm and changes under it."
+}

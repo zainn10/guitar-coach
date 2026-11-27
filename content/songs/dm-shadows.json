@@ -1,0 +1,23 @@
+{
+  "id": "dm-shadows",
+  "title": "Shadows in D minor",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 2,
+  "bpm": 80,
+  "startBpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-D-",
+  "bars": [
+    "Dm",
+    "Dm",
+    "A",
+    "A",
+    "Dm",
+    "Dm",
+    "A",
+    "Dm"
+  ],
+  "notes": "A moody two-chord piece. Dm to A is the minor key's strongest pull."
+}

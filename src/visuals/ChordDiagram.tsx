@@ -40,13 +40,16 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
   const fretted = strings.filter(s => s.fret && s.fret > 0).map(s => s.fret!);
   const maxFret = fretted.length ? Math.max(...fretted) : 1;
   const minFret = fretted.length ? Math.min(...fretted) : 1;
-  const base = maxFret <= 4 ? 1 : minFret;
+  const base = maxFret <= 4 ? 1 : Math.min(minFret, ...(chord.barres ?? []).map(b => b.fret));
   const nFrets = Math.max(4, maxFret - base + 1);
 
   let visible = new Set(strings.map(s => s.string));
   if (visibleSteps !== undefined && chord.steps) {
     visible = new Set(chord.steps.slice(0, visibleSteps).map(s => s.string).filter(Boolean));
   }
+
+  const inBarre = (str: number, fret: number) => (chord.barres ?? []).some(b => b.fret === fret && str <= b.from && str >= b.to);
+  const visibleBarre = (b: { from: number }) => visible.has(b.from);
 
   const label = `${chord.name} chord diagram. ` + strings.map(s =>
     s.fret === null ? `${STRING_LABEL[s.string]} string: not played` :
@@ -83,7 +86,7 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
   };
 
   if (view === 'chart') {
-    const W = 240, L = 40, R = 22, T = 44, fh = 50, H = T + nFrets * fh + (statuses ? 64 : 40);
+    const W = 250, L = 52, R = 22, T = 44, fh = 50, H = T + nFrets * fh + (statuses ? 64 : 40);
     const sp = (W - L - R) / 5;
     const xs = (str: number) => L + (6 - str) * sp;
     return (
@@ -97,7 +100,7 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
           ))}
           {/* fret numbers */}
           {Array.from({ length: nFrets }, (_, i) => (
-            <text key={`n${i}`} x={L - 14} y={T + (i + 0.5) * fh + 5} textAnchor="middle" fontSize={13} fill="var(--muted)">{base + i}</text>
+            <text key={`n${i}`} x={L - 30} y={T + (i + 0.5) * fh + 5} textAnchor="middle" fontSize={13} fill="var(--muted)">{base + i}</text>
           ))}
           {/* strings */}
           {strings.map(s => (
@@ -115,8 +118,14 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
             );
             return null;
           })}
+          {/* barres */}
+          {(chord.barres ?? []).map((b, i) => (
+            <rect key={`b${i}`} x={xs(b.from) - sp * 0.4} y={T + (b.fret - base + 0.5) * fh - sp * 0.36} width={xs(b.to) - xs(b.from) + sp * 0.8} height={sp * 0.72}
+              rx={sp * 0.36} fill={`var(--f${b.finger})`} opacity={visibleBarre(b) ? 0.92 : 0} stroke="var(--bg)" strokeWidth={2} />
+          ))}
           {/* finger dots */}
-          {strings.map(s => s.fret && s.fret > 0 ? dot(xs(s.string), T + (s.fret - base + 0.5) * fh, sp * 0.4, s.finger, s.string) : null)}
+          {strings.map(s => s.fret && s.fret > 0 && !inBarre(s.string, s.fret) ? dot(xs(s.string), T + (s.fret - base + 0.5) * fh, sp * 0.4, s.finger, s.string) : null)}
+          {(chord.barres ?? []).map((b, i) => visibleBarre(b) ? <text key={`bt${i}`} x={xs(b.from)} y={T + (b.fret - base + 0.5) * fh + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill="#fff">{b.finger}</text> : null)}
           {/* string names */}
           {strings.map(s => (
             <text key={`l${s.string}`} x={xs(s.string)} y={T + nFrets * fh + 22} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--muted)">{STRING_SHORT[s.string]}</text>
@@ -159,7 +168,12 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
           );
           return null;
         })}
-        {strings.map(s => s.fret && s.fret > 0 ? dot(L + (s.fret - base + 0.62) * fw, ys(s.string), sh * 0.46, s.finger, s.string) : null)}
+        {(chord.barres ?? []).map((b, i) => visibleBarre(b) ? (
+          <g key={`b${i}`}>
+            <rect x={L + (b.fret - base + 0.62) * fw - sh * 0.42} y={ys(b.from) - sh * 0.42} width={sh * 0.84} height={ys(b.to) - ys(b.from) + sh * 0.84} rx={sh * 0.42} fill={`var(--f${b.finger})`} stroke="var(--bg)" strokeWidth={2} />
+            <text x={L + (b.fret - base + 0.62) * fw} y={ys(b.from) + 5} textAnchor="middle" fontSize={13} fontWeight={700} fill="#fff">{b.finger}</text>
+          </g>) : null)}
+        {strings.map(s => s.fret && s.fret > 0 && !inBarre(s.string, s.fret) ? dot(L + (s.fret - base + 0.62) * fw, ys(s.string), sh * 0.46, s.finger, s.string) : null)}
         {statuses && strings.map(s => statusIcon(W - 20, ys(s.string), s.string))}
         <text x={L} y={H - 4} fontSize={11} fill="var(--muted)">← headstock</text>
         <text x={L + nFrets * fw} y={H - 4} fontSize={11} textAnchor="end" fill="var(--muted)">body →</text>

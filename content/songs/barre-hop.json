@@ -1,0 +1,23 @@
+{
+  "id": "barre-hop",
+  "title": "Barre Hop",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 5,
+  "bpm": 80,
+  "startBpm": 55,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-DU",
+  "bars": [
+    "Am",
+    "F",
+    "C",
+    "G",
+    "Am",
+    "F",
+    "C",
+    "G"
+  ],
+  "notes": "Full F in a real progression. Move between F and the open chords without stopping."
+}

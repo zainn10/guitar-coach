@@ -1,0 +1,663 @@
+{
+  "_about": "Barre chords, power chords and other chords taught from Stage 5 on.",
+  "chords": [
+    {
+      "id": "Fsmall",
+      "name": "F (small, four strings)",
+      "stage": 5,
+      "frets": [
+        null,
+        null,
+        3,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        null,
+        null,
+        3,
+        2,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 1,
+          "from": 2,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 2,
+          "text": "Index finger flat across the 1st AND 2nd strings at the 1st fret (a mini barre)."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 4,
+          "text": "Ring finger, 3rd fret, 4th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum the top four strings."
+        }
+      ],
+      "notes": "The stepping stone to full F: only two strings under the index finger.",
+      "troubles": [
+        "f-chord"
+      ]
+    },
+    {
+      "id": "F",
+      "name": "F major (full barre)",
+      "stage": 5,
+      "frets": [
+        1,
+        3,
+        3,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        2,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 1,
+          "from": 6,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 6,
+          "text": "Index finger straight across all six strings at the 1st fret, right behind the fret wire. Roll it slightly onto its bony edge."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 5,
+          "text": "Ring finger, 3rd fret, 5th string."
+        },
+        {
+          "string": 4,
+          "text": "Little finger, 3rd fret, 4th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum all six. Check each string one at a time: fix just the dead one."
+        }
+      ],
+      "notes": "The famous hard one. It's an E shape with your index finger acting as a moveable nut.",
+      "troubles": [
+        "f-chord",
+        "barre-dead"
+      ],
+      "tips": [
+        "Pull the guitar in with your strumming arm; don't squeeze with the thumb.",
+        "Most dead strings are under the joints of the index finger: nudge it up or down."
+      ]
+    },
+    {
+      "id": "Bm",
+      "name": "B minor (barre, 2nd fret)",
+      "stage": 5,
+      "frets": [
+        null,
+        2,
+        4,
+        4,
+        3,
+        2
+      ],
+      "fingers": [
+        null,
+        1,
+        3,
+        4,
+        2,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 2,
+          "from": 5,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 5,
+          "text": "Index finger across strings 5 to 1 at the 2nd fret."
+        },
+        {
+          "string": 2,
+          "text": "Middle finger, 3rd fret, 2nd string."
+        },
+        {
+          "string": 4,
+          "text": "Ring finger, 4th fret, 4th string."
+        },
+        {
+          "string": 3,
+          "text": "Little finger, 4th fret, 3rd string."
+        },
+        {
+          "string": 0,
+          "text": "Strum from the 5th string."
+        }
+      ],
+      "notes": "An Am shape moved up two frets, with the index finger as the barre.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "Fsharp",
+      "name": "F♯ major (barre, 2nd fret)",
+      "stage": 5,
+      "frets": [
+        2,
+        4,
+        4,
+        3,
+        2,
+        2
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        2,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 2,
+          "from": 6,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 6,
+          "text": "Index finger across all six strings at the 2nd fret."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 3rd fret, 3rd string."
+        },
+        {
+          "string": 5,
+          "text": "Ring finger, 4th fret, 5th string."
+        },
+        {
+          "string": 4,
+          "text": "Little finger, 4th fret, 4th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum all six."
+        }
+      ],
+      "notes": "The full F shape moved up one fret. Slightly easier than F: the frets are a little closer and the tension lower.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "B",
+      "name": "B major (barre, 2nd fret)",
+      "stage": 5,
+      "frets": [
+        null,
+        2,
+        4,
+        4,
+        4,
+        2
+      ],
+      "fingers": [
+        null,
+        1,
+        2,
+        3,
+        4,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 2,
+          "from": 5,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 5,
+          "text": "Index finger across strings 5 to 1 at the 2nd fret."
+        },
+        {
+          "string": 4,
+          "text": "Middle, ring and little fingers on the 4th fret of strings 4, 3 and 2."
+        },
+        {
+          "string": 0,
+          "text": "Strum from the 5th string. Let the 1st string ring from the barre."
+        }
+      ],
+      "notes": "An A shape moved up two frets.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "B7",
+      "name": "B7",
+      "stage": 4,
+      "frets": [
+        null,
+        2,
+        1,
+        2,
+        0,
+        2
+      ],
+      "fingers": [
+        null,
+        2,
+        1,
+        3,
+        null,
+        4
+      ],
+      "steps": [
+        {
+          "string": 4,
+          "text": "Index finger, 1st fret, 4th string."
+        },
+        {
+          "string": 5,
+          "text": "Middle finger, 2nd fret, 5th string."
+        },
+        {
+          "string": 3,
+          "text": "Ring finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 1,
+          "text": "Little finger, 2nd fret, 1st string. The 2nd string stays open."
+        },
+        {
+          "string": 0,
+          "text": "Strum from the 5th string."
+        }
+      ],
+      "notes": "The open-position B7: no barre needed. It leads strongly back to Em."
+    },
+    {
+      "id": "Bb",
+      "name": "B♭ major (barre, 1st fret)",
+      "stage": 6,
+      "frets": [
+        null,
+        1,
+        3,
+        3,
+        3,
+        1
+      ],
+      "fingers": [
+        null,
+        1,
+        2,
+        3,
+        4,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 1,
+          "from": 5,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "notes": "The B shape moved down one fret.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "Gm",
+      "name": "G minor (barre, 3rd fret)",
+      "stage": 6,
+      "frets": [
+        3,
+        5,
+        5,
+        3,
+        3,
+        3
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        1,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 3,
+          "from": 6,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "notes": "The Em shape moved up three frets, with the barre at the 3rd fret.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "Gm7",
+      "name": "G minor 7 (barre, 3rd fret)",
+      "stage": 6,
+      "frets": [
+        3,
+        5,
+        3,
+        3,
+        3,
+        3
+      ],
+      "fingers": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 3,
+          "from": 6,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 6,
+          "text": "Index finger across all six strings at the 3rd fret."
+        },
+        {
+          "string": 5,
+          "text": "Ring finger, 5th fret, 5th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum all six. Just two fingers: one of the friendliest barre chords."
+        }
+      ],
+      "notes": "The Em7 shape with a barre at the 3rd fret.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "Dm7",
+      "name": "D minor 7",
+      "stage": 6,
+      "frets": [
+        null,
+        null,
+        0,
+        2,
+        1,
+        1
+      ],
+      "fingers": [
+        null,
+        null,
+        null,
+        2,
+        1,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 1,
+          "from": 2,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 2,
+          "text": "Index finger across the 1st and 2nd strings at the 1st fret."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 0,
+          "text": "Strum from the 4th string."
+        }
+      ],
+      "notes": "Soft and jazzy: Dm with a little extra colour."
+    },
+    {
+      "id": "Bbmaj7",
+      "name": "B♭ major 7 (1st fret)",
+      "stage": 6,
+      "frets": [
+        null,
+        1,
+        3,
+        2,
+        3,
+        1
+      ],
+      "fingers": [
+        null,
+        1,
+        3,
+        2,
+        4,
+        1
+      ],
+      "barres": [
+        {
+          "fret": 1,
+          "from": 5,
+          "to": 1,
+          "finger": 1
+        }
+      ],
+      "steps": [
+        {
+          "string": 5,
+          "text": "Index finger across strings 5 to 1 at the 1st fret."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 4,
+          "text": "Ring finger, 3rd fret, 4th string."
+        },
+        {
+          "string": 2,
+          "text": "Little finger, 3rd fret, 2nd string."
+        },
+        {
+          "string": 0,
+          "text": "Strum from the 5th string."
+        }
+      ],
+      "notes": "A smooth, dreamy chord.",
+      "troubles": [
+        "barre-dead"
+      ]
+    },
+    {
+      "id": "E5",
+      "name": "E5 (power chord)",
+      "stage": 5,
+      "frets": [
+        0,
+        2,
+        2,
+        null,
+        null,
+        null
+      ],
+      "fingers": [
+        null,
+        1,
+        2,
+        null,
+        null,
+        null
+      ],
+      "notes": "Root and fifth only: neither major nor minor. The sound of rock.",
+      "steps": [
+        {
+          "string": 5,
+          "text": "Index finger, 2nd fret, 5th string."
+        },
+        {
+          "string": 4,
+          "text": "Middle finger, 2nd fret, 4th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum only the three lowest strings."
+        }
+      ]
+    },
+    {
+      "id": "A5",
+      "name": "A5 (power chord)",
+      "stage": 5,
+      "frets": [
+        null,
+        0,
+        2,
+        2,
+        null,
+        null
+      ],
+      "fingers": [
+        null,
+        null,
+        1,
+        2,
+        null,
+        null
+      ],
+      "notes": "Strum strings 5, 4 and 3 only.",
+      "steps": [
+        {
+          "string": 4,
+          "text": "Index finger, 2nd fret, 4th string."
+        },
+        {
+          "string": 3,
+          "text": "Middle finger, 2nd fret, 3rd string."
+        },
+        {
+          "string": 0,
+          "text": "Strum strings 5, 4 and 3."
+        }
+      ]
+    },
+    {
+      "id": "G5",
+      "name": "G5 (power chord, 3rd fret)",
+      "stage": 5,
+      "frets": [
+        3,
+        5,
+        5,
+        null,
+        null,
+        null
+      ],
+      "fingers": [
+        1,
+        3,
+        4,
+        null,
+        null,
+        null
+      ],
+      "notes": "The moveable power-chord shape: index on the root, ring and little two frets higher on the next two strings.",
+      "steps": [
+        {
+          "string": 6,
+          "text": "Index finger, 3rd fret, 6th string."
+        },
+        {
+          "string": 5,
+          "text": "Ring finger, 5th fret, 5th string."
+        },
+        {
+          "string": 4,
+          "text": "Little finger, 5th fret, 4th string."
+        },
+        {
+          "string": 0,
+          "text": "Strum strings 6, 5 and 4 only. Let the index finger lightly touch the other strings to keep them quiet."
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "name": "C5 (power chord, 3rd fret)",
+      "stage": 5,
+      "frets": [
+        null,
+        3,
+        5,
+        5,
+        null,
+        null
+      ],
+      "fingers": [
+        null,
+        1,
+        3,
+        4,
+        null,
+        null
+      ],
+      "notes": "The G5 shape moved across one string."
+    }
+  ]
+}

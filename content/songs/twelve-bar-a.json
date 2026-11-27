@@ -1,0 +1,27 @@
+{
+  "id": "twelve-bar-a",
+  "title": "12-Bar Blues in A",
+  "credit": "Traditional form",
+  "kind": "traditional",
+  "stage": 5,
+  "bpm": 90,
+  "startBpm": 65,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DUD-DU",
+  "bars": [
+    "A7",
+    "A7",
+    "A7",
+    "A7",
+    "D7",
+    "D7",
+    "A7",
+    "A7",
+    "E7",
+    "D7",
+    "A7",
+    "E7"
+  ],
+  "notes": "The most famous chord form in popular music. 7th chords give it the bluesy tang."
+}

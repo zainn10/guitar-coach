@@ -1,0 +1,288 @@
+{
+  "_about": "The trouble-shooter: common beginner problems with plain-English fixes. 'visual' is a mistake picture id; 'related' lists chords or skills it's linked to.",
+  "troubles": [
+    {
+      "id": "buzzing", "title": "Buzzing or rattling notes", "group": "Left hand",
+      "symptom": "A note fizzes or rattles instead of ringing cleanly.",
+      "why": "The string is touching a fret it shouldn't: usually because your fingertip is too far from the fret wire, or you're not pressing quite firmly enough.",
+      "steps": [
+        "Move the fingertip right up behind the fret wire (towards the body of the guitar). Almost touching it, not on top of it.",
+        "Press with the very tip of the finger, nail pointing roughly at the ceiling.",
+        "Press only as hard as needed: start light, add pressure until the buzz just disappears. That's your target pressure.",
+        "Pluck each string of the chord one at a time to find which one buzzes. Then fix just that finger.",
+        "If an OPEN string buzzes even with no fingers down, it may be the guitar's setup: a guitar shop can raise the action for a small fee."
+      ],
+      "visual": "far-from-fret", "related": ["chord:*"]
+    },
+    {
+      "id": "muted-strings", "title": "A string sounds dead or muted", "group": "Left hand",
+      "symptom": "One string in the chord makes a dull 'thunk' instead of a note.",
+      "why": "Almost always a neighbouring finger lying flat and touching it. The soft pad of a fretting finger leans onto the next string.",
+      "steps": [
+        "Use Chord check → 'String by string' to find exactly which string is dead.",
+        "Look at the finger on the string just next to it (usually the thicker side). That finger is the likely culprit.",
+        "Arch that finger more: come down on the very tip, with the middle knuckle bent, like a little bridge over the next string.",
+        "Bring your thumb lower behind the neck: this lets your fingers arch higher automatically.",
+        "Keep your fingernails short on the fretting hand: long nails force you to play on the pads."
+      ],
+      "visual": "finger-flat", "related": ["chord:*"]
+    },
+    {
+      "id": "sore-fingertips", "title": "Sore fingertips", "group": "Comfort",
+      "symptom": "Your fingertips sting or throb after practising.",
+      "why": "Totally normal for the first 2 to 4 weeks. Your fingertips are building protective calluses. Nylon strings are the gentlest there are, so this phase is short.",
+      "steps": [
+        "Practise little and often: three sessions of 10 minutes beat one session of 30 while your fingers toughen.",
+        "Stop when it actually hurts (a sharp sting), not just feels tender. Take a 2-minute break: the app suggests these in long sessions.",
+        "Press only as hard as needed (see 'Buzzing' for how to find the minimum).",
+        "Avoid long soaks in hot water right before playing: soft skin hurts more.",
+        "It gets dramatically better: by week 3 or 4 most people don't notice it any more."
+      ],
+      "related": ["skill:*"]
+    },
+    {
+      "id": "slow-changes", "title": "Chord changes are too slow", "group": "Chord changes",
+      "symptom": "Your strumming stops while your fingers hunt for the next chord.",
+      "why": "Your fingers are moving one at a time and you're looking for each spot. Speed comes from moving as a unit and from knowing which fingers don't need to move.",
+      "steps": [
+        "Watch the chord-change animation in the Chord library: gold rings show fingers that can stay put (anchors) or slide (guide fingers). Never lift those.",
+        "Practise the shape 'in the air': lift your hand a centimetre off the strings and place the whole chord at once. Repeat 10 times without strumming.",
+        "Do the one-minute change drill daily. Count changes, not perfect chords. Accuracy follows speed surprisingly fast.",
+        "Change early: start moving on beat 4, not beat 1. Better to play the last beat open than to be late.",
+        "Look at where the FIRST finger goes, not all of them. Let the others follow."
+      ],
+      "related": ["change:*"]
+    },
+    {
+      "id": "g-c-change", "title": "The G to C change", "group": "Chord changes",
+      "symptom": "G and C both sound OK alone, but switching between them is a scramble.",
+      "why": "It's the classic hard change: every finger moves, and the hand has to shift across the neck.",
+      "steps": [
+        "Move your fingers in a fixed order: ring finger first (it travels furthest), then middle, then index.",
+        "Notice the pattern: in G the middle and index are on the 6th and 5th strings; in C they're on the 5th and 4th. Both just shift down one string.",
+        "Later, try G played with fingers 2-1-3 swapped for 3-2-4 (middle on the 5th string, ring on the 6th, little on the 1st). The middle and ring fingers then make the same diagonal shape they need for C, just moved over one string.",
+        "Drill just this pair for one minute a day. It's normal for this change to take 2 to 3 weeks.",
+        "In songs, play the last beat before the change as open strings while your hand moves."
+      ],
+      "related": ["change:C>G", "chord:G", "chord:C"]
+    },
+    {
+      "id": "f-chord", "title": "The F chord", "group": "Barre chords",
+      "symptom": "Full F won't ring: strings are dead, buzzing, or your hand gives up.",
+      "why": "F asks your index finger to hold down all six strings at the 1st fret, where the string tension is highest. Nobody gets it first time. It's a strength-and-position skill that arrives over a few weeks.",
+      "steps": [
+        "Use the stepping stones: easy F (Fmaj7) → small F (4 strings) → F with a 2-string barre → full F. Each stage in the Course unlocks when you're ready.",
+        "Roll the index finger slightly onto its bony edge (towards the headstock) and keep it right next to the fret wire.",
+        "Pull the guitar into you with your strumming arm and let your arm weight do the work, instead of squeezing with the thumb.",
+        "Thumb low behind the neck, roughly behind your middle finger.",
+        "Check strings one at a time (String by string mode). Usually just the 2nd or 3rd string is dead: nudge the barre up or down a millimetre to move the joint crease off it.",
+        "Short daily attempts: 5 tries of 10 seconds, then rest. Squeezing for minutes only tires the hand."
+      ],
+      "visual": "barre-roll", "related": ["chord:F", "chord:Fsmall", "chord:Fmaj7"]
+    },
+    {
+      "id": "barre-dead", "title": "Dead strings in barre chords", "group": "Barre chords",
+      "symptom": "In Bm, F♯ or other barre chords, one or two strings thud.",
+      "why": "Those strings are sitting in the creases of your index finger joints, or another finger is leaning on them.",
+      "steps": [
+        "Slide the barre finger up or down a little (towards your face or the floor) to move a crease off the dead string.",
+        "Roll the finger onto its harder outer edge.",
+        "Make sure only the strings that NEED the barre are pressed by it. In Bm, the index only needs to hold the 5th and 1st strings firmly.",
+        "Keep the elbow close to your body: it naturally turns the finger onto its edge."
+      ],
+      "visual": "barre-roll", "related": ["chord:Bm", "chord:Fsharp", "chord:F"]
+    },
+    {
+      "id": "stiff-strumming", "title": "Strumming sounds stiff or uneven", "group": "Right hand",
+      "symptom": "Some strums are loud, some weak; the arm feels tense.",
+      "why": "Strumming from the shoulder, gripping too tightly, or stopping the arm between strums.",
+      "steps": [
+        "Strum from the elbow with a loose wrist, like shaking water off your fingers.",
+        "Keep the arm moving down-up all the time, even when you don't hit the strings (the faint arrows in the strum diagrams). This is the pendulum.",
+        "With fingers (no pick), lead down-strums with the back of the index fingernail and up-strums with the fleshy side of the thumb or index.",
+        "Aim down-strums at the bass strings and up-strums at the top 3 or 4 strings only.",
+        "Practise with a metronome at a slow, boring tempo. Evenness first, speed later."
+      ],
+      "visual": "strum-arm", "related": ["skill:strum-down", "skill:strum-du", "skill:strum-patterns"]
+    },
+    {
+      "id": "losing-beat", "title": "Losing the beat or speeding up", "group": "Rhythm",
+      "symptom": "You drift ahead of the click, or lose your place after a change.",
+      "why": "Your hand speeds up on easy parts and slows down on hard ones. Steady rhythm is a skill you train, not something you're born with.",
+      "steps": [
+        "Count out loud: '1 and 2 and 3 and 4 and'. It feels silly. It works.",
+        "Tap your foot on every beat.",
+        "Use the metronome at a tempo where you never have to stop, even if it feels too slow.",
+        "If you're early, you're rushing the easy bit. Relax into the click: try to make it 'disappear' under your strum.",
+        "Record a take and look at the song map: the dots show if you're consistently early or late."
+      ],
+      "related": ["skill:counting", "song:*"]
+    },
+    {
+      "id": "stopping-at-changes", "title": "I stop every time the chord changes", "group": "Rhythm",
+      "symptom": "Your strumming pauses while your left hand catches up.",
+      "why": "Your brain is prioritising the perfect chord over the beat. In music, the beat wins.",
+      "steps": [
+        "Rule number one: never stop the strumming hand. If the chord isn't ready, strum anyway. Open strings, half a chord, anything.",
+        "Start changing on the last beat of the bar ('the and of 4').",
+        "Slow the tempo down until you can keep going. The tempo ladder does this for you.",
+        "Use the 'fix it' loop on the song map: it repeats just the bars you struggle with, slower, then speeds up."
+      ],
+      "related": ["change:*", "song:*"]
+    },
+    {
+      "id": "upstrums", "title": "Up-strums sound thin or catch the strings", "group": "Right hand",
+      "symptom": "Up-strums snag, or only one string sounds.",
+      "why": "Up-strums should be lighter and only hit the top few strings. Digging in too deep makes them catch.",
+      "steps": [
+        "On the way up, only aim for the top 3 or 4 strings.",
+        "Angle your hand slightly so it glides over the strings.",
+        "Think 'down = strong, up = light'. That contrast is what makes strumming groove.",
+        "With bare fingers on nylon, try the side of the thumb for up-strums."
+      ],
+      "related": ["skill:strum-du"]
+    },
+    {
+      "id": "hand-ache", "title": "Hand, wrist or arm aches", "group": "Comfort",
+      "symptom": "An ache in the left hand, wrist or forearm after a while.",
+      "why": "Too much squeezing, a bent wrist or a poor sitting position. Some muscle tiredness is normal at first; sharp or lasting pain is not.",
+      "steps": [
+        "Stop and shake out your hands. Take regular breaks: the app suggests them.",
+        "Check the thumb: behind the neck, light pressure. You shouldn't be gripping like a handrail.",
+        "Check the wrist: a gentle curve, not a sharp bend. Raise the neck angle (classical position) if needed.",
+        "Use only the pressure needed for a clean note.",
+        "If pain is sharp, tingling, or lasts into the next day, rest for a few days and see a doctor or physio if it continues."
+      ],
+      "visual": "wrist", "related": ["skill:posture"]
+    },
+    {
+      "id": "thumb-position", "title": "Where does my thumb go?", "group": "Left hand",
+      "symptom": "Your thumb creeps over the top of the neck, or your fingers can't arch.",
+      "why": "A thumb hooked over the top pulls the palm against the neck and flattens the fingers.",
+      "steps": [
+        "Place the pad of the thumb behind the neck, roughly behind your middle finger, below the centre line.",
+        "Think of a light pinch between thumb and fingers, not a grip.",
+        "For big strummed chords some players hook the thumb over: fine later, but learn the classical position first. It makes everything else easier."
+      ],
+      "visual": "thumb", "related": ["skill:posture", "chord:*"]
+    },
+    {
+      "id": "stretch", "title": "My fingers can't reach", "group": "Left hand",
+      "symptom": "Wide chords like G feel impossible.",
+      "why": "The stretch comes from the hand position, not from long fingers.",
+      "steps": [
+        "Drop the thumb lower behind the neck: this opens the hand.",
+        "Bring the guitar neck up (about 45°) and your elbow a little in.",
+        "Place the finger that has the hardest stretch first, then fit the others around it.",
+        "Use the 'one finger per fret' warm-up daily: it stretches gently over weeks."
+      ],
+      "visual": "thumb", "related": ["chord:G"]
+    },
+    {
+      "id": "looking", "title": "I have to look at my hands all the time", "group": "Chord changes",
+      "symptom": "Your eyes are glued to the fretboard.",
+      "why": "Totally normal at first. Your hand hasn't memorised the shapes yet.",
+      "steps": [
+        "Look only at the target: the spot where your FIRST finger lands. Not the whole hand.",
+        "Practise each chord shape with your eyes closed: place it, open your eyes, check it with Chord check.",
+        "Use anchor and guide fingers (see chord changes): touch tells you where you are."
+      ],
+      "related": ["change:*"]
+    },
+    {
+      "id": "tuning-drift", "title": "My guitar won't stay in tune", "group": "Guitar",
+      "symptom": "It's in tune, then a few minutes later it's flat again.",
+      "why": "New nylon strings stretch a lot for the first week or two. Temperature changes also affect nylon.",
+      "steps": [
+        "Tune up to the note, not down to it: if you go too high, drop below and come back up.",
+        "Stretch new strings gently: pull each one away from the fretboard along its length a few times, then retune. Repeat 3 or 4 times.",
+        "Check tuning every practice session. It takes 30 seconds with the tuner.",
+        "After about 2 weeks, the strings settle and stay in tune much longer."
+      ],
+      "related": ["skill:tuning"]
+    },
+    {
+      "id": "nails", "title": "Right-hand nails on a nylon guitar", "group": "Right hand",
+      "symptom": "Fingerpicking sounds clicky or dull.",
+      "why": "Classical players pluck with a mix of flesh and nail. Length and shape matter.",
+      "steps": [
+        "Start with short, smooth nails: just past the fingertip, filed in a gentle curve with no snags.",
+        "Use fine sandpaper or a glass nail file to polish the edge.",
+        "Flamenco players keep them a little longer and stronger for rasgueado.",
+        "Fretting-hand (left) nails should be short."
+      ],
+      "visual": "nails", "related": ["skill:pima", "skill:rasgueado"]
+    },
+    {
+      "id": "fingerpicking-coordination", "title": "Fingerpicking feels uncoordinated", "group": "Right hand",
+      "symptom": "Fingers pluck the wrong strings or bump into each other.",
+      "why": "Each finger needs its own 'home string'. Your brain is still mapping it.",
+      "steps": [
+        "Give each finger a home: thumb on the bass strings (4, 5, 6), index on 3, middle on 2, ring on 1.",
+        "Rest the fingers lightly on their strings before you start: plant, then play.",
+        "Slow way down: one note per second with the metronome. Say the letters out loud: p, i, m, a.",
+        "Keep the hand still: the fingers move, not the wrist.",
+        "Practise the pattern on open strings first, then add the chord."
+      ],
+      "related": ["skill:pima", "skill:arpeggio"]
+    },
+    {
+      "id": "wrong-strings", "title": "Strumming hits strings it shouldn't", "group": "Right hand",
+      "symptom": "Chord check says an extra string sounded (like the low E in a D chord).",
+      "why": "Your strum starts too high (nearer your face).",
+      "steps": [
+        "Before strumming, rest your strumming hand's thumb or finger on the first string you should play (for D: the 4th string).",
+        "Start the strum from there. Your hand learns the distance after a few days.",
+        "You can also lightly touch the unwanted string with the tip of your left thumb (for D) or a fretting finger to keep it quiet."
+      ],
+      "related": ["chord:D", "chord:Dm", "chord:C", "chord:Am", "chord:A"]
+    },
+    {
+      "id": "weak-pinky", "title": "My little finger is weak", "group": "Left hand",
+      "symptom": "The little finger collapses or can't press hard enough.",
+      "why": "It's rarely used in daily life. It strengthens quickly with use.",
+      "steps": [
+        "Do the 1-2-3-4 warm-up every session: it's mostly for this finger.",
+        "Press with the very tip and keep the first joint slightly curved, not locked straight.",
+        "In shapes where it's optional, start without it and add it later."
+      ],
+      "related": ["skill:warmup"]
+    },
+    {
+      "id": "rasgueado-uneven", "title": "Rasgueado sounds uneven", "group": "Flamenco",
+      "symptom": "Instead of a rolling 'brrrap', you hear clumps of strokes.",
+      "why": "The fingers fire at different strengths and speeds, and the wrist moves too much.",
+      "steps": [
+        "Practise each finger alone: flick it out of the fist onto the strings, nail first, 10 times each.",
+        "Then the sequence very slowly, evenly spaced, with the metronome (one finger per click).",
+        "Keep the wrist still; the movement comes from the finger joints.",
+        "Little and often: rasgueado can tire nails and fingertips. Stop if a nail hurts."
+      ],
+      "related": ["skill:rasgueado"]
+    },
+    {
+      "id": "guitar-slips", "title": "The guitar slips while I play", "group": "Comfort",
+      "symptom": "The neck drops or the guitar slides off your leg.",
+      "why": "Nylon guitars are slippery on smooth clothes, and without a footstool the angle is wrong.",
+      "steps": [
+        "Use the classical position: left foot on a footstool (or a stack of books), guitar on the left leg.",
+        "A small non-slip cloth or a guitar support cushion on your leg helps a lot.",
+        "Your right forearm rests on the top edge of the body and holds the guitar against you. The left hand should never hold the guitar up."
+      ],
+      "related": ["skill:posture"]
+    },
+    {
+      "id": "plateau", "title": "I'm stuck and not improving", "group": "Practice",
+      "symptom": "You practise but things feel the same.",
+      "why": "Usually repeating what you can already do, or practising too fast.",
+      "steps": [
+        "Let the Today page choose: it puts your weakest items first.",
+        "Go slower than feels necessary. Clean at slow speed transfers to fast; messy at fast speed doesn't.",
+        "Practise the hard 2 bars, not the whole song (use the 'fix it' loop).",
+        "Short daily sessions beat long weekly ones. Even 5 minutes counts.",
+        "Look at the Progress graphs: improvement is often bigger than it feels."
+      ],
+      "related": ["skill:*"]
+    }
+  ]
+}

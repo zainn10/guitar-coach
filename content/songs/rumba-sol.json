@@ -1,0 +1,23 @@
+{
+  "id": "rumba-sol",
+  "title": "Rumba del Sol",
+  "credit": "Original practice progression (rumba)",
+  "kind": "practice",
+  "stage": 4,
+  "bpm": 90,
+  "startBpm": 65,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-XU-XUD",
+  "bars": [
+    "Am",
+    "G",
+    "Fmaj7",
+    "E",
+    "Am",
+    "G",
+    "Fmaj7",
+    "E"
+  ],
+  "notes": "Rumba strum: X is a muted 'chuck' (the palm or fingers landing on the strings). Feel the bounce."
+}

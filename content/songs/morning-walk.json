@@ -1,0 +1,23 @@
+{
+  "id": "morning-walk",
+  "title": "Morning Walk",
+  "credit": "Original practice progression",
+  "kind": "practice",
+  "stage": 2,
+  "bpm": 80,
+  "startBpm": 60,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-D-D-D-",
+  "bars": [
+    "A",
+    "A",
+    "D",
+    "D",
+    "A",
+    "D",
+    "A",
+    "A"
+  ],
+  "notes": "Four down-strums per bar. Keep the arm moving evenly."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "hotel-california",
+  "title": "Hotel California: chord progression (original key)",
+  "credit": "Chord progression only (Eagles). No melody, solo or lyrics.",
+  "kind": "goal",
+  "stage": 5,
+  "bpm": 74,
+  "startBpm": 50,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DU-UDU",
+  "bars": [
+    "Bm",
+    "Fsharp",
+    "A",
+    "E",
+    "G",
+    "D",
+    "Em",
+    "Fsharp"
+  ],
+  "notes": "No capo: barre chords Bm and F♯. This is the progression the famous solo is played over."
+}

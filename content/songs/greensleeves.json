@@ -1,0 +1,24 @@
+{
+  "id": "greensleeves",
+  "title": "Greensleeves (fingerpicked)",
+  "credit": "Traditional (English, 16th century)",
+  "kind": "traditional",
+  "stage": 4,
+  "bpm": 70,
+  "startBpm": 50,
+  "beatsPerBar": 3,
+  "countInBars": 1,
+  "pattern": "DDDDDD",
+  "checkChords": false,
+  "bars": [
+    "Am",
+    "G",
+    "Am",
+    "E",
+    "Am",
+    "G",
+    "Am E",
+    "Am"
+  ],
+  "notes": "Fingerpick p-i-m-a-m-i over each chord (one note per half-beat). Chords and pattern only; the timing of your plucks is checked."
+}

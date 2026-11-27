@@ -1,0 +1,31 @@
+{
+  "id": "amazing-grace",
+  "title": "Amazing Grace",
+  "credit": "Traditional",
+  "kind": "traditional",
+  "stage": 3,
+  "bpm": 85,
+  "startBpm": 60,
+  "beatsPerBar": 3,
+  "countInBars": 1,
+  "pattern": "D-DUDU",
+  "bars": [
+    "G",
+    "G",
+    "C",
+    "G",
+    "G",
+    "G",
+    "D",
+    "D",
+    "G",
+    "G",
+    "C",
+    "G",
+    "G",
+    "D",
+    "G",
+    "G"
+  ],
+  "notes": "In 3/4 time: count 1-2-3, 1-2-3. Chords only."
+}

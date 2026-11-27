@@ -1,0 +1,23 @@
+{
+  "id": "careless-whisper",
+  "title": "Careless Whisper: chord progression",
+  "credit": "Chord progression only (George Michael & Andrew Ridgeley). No melody, riff or lyrics.",
+  "kind": "goal",
+  "stage": 6,
+  "bpm": 77,
+  "startBpm": 55,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DU-UDU",
+  "bars": [
+    "Dm7",
+    "Gm7",
+    "Bbmaj7",
+    "A7",
+    "Dm7",
+    "Gm7",
+    "Bbmaj7",
+    "A7"
+  ],
+  "notes": "The progression under the riff. Get the riff itself from a licensed source; Stage 6 builds the fast descending runs it needs."
+}

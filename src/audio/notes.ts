@@ -29,6 +29,14 @@ export interface ChordShape {
   reference?: boolean;
   /** Octave-twin strings that tests showed CAN be checked reliably in this chord. */
   checkShared?: number[];
+  /** Barres: one finger pressing several strings at the same fret. from/to are string numbers (6..1). */
+  barres?: { fret: number; from: number; to: number; finger: number }[];
+  /** Stage in which this chord is taught. */
+  stage?: number;
+  /** Trouble-shooter topics that commonly go wrong with this chord. */
+  troubles?: string[];
+  /** Short practical tips. */
+  tips?: string[];
 }
 
 export interface StringNote { string: number; fret: number | null; finger: number | null; midi: number | null }

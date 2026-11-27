@@ -1,0 +1,23 @@
+{
+  "id": "tangos-del-sol",
+  "title": "Tangos del Sol",
+  "credit": "Original practice progression (tangos rhythm)",
+  "kind": "practice",
+  "stage": 6,
+  "bpm": 95,
+  "startBpm": 70,
+  "beatsPerBar": 4,
+  "countInBars": 1,
+  "pattern": "D-DUD-DU",
+  "bars": [
+    "Am",
+    "G",
+    "F",
+    "E",
+    "Am",
+    "G",
+    "F",
+    "E"
+  ],
+  "notes": "A tangos-style groove over the Andalusian cadence, now with full F."
+}
