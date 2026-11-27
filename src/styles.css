@@ -584,3 +584,10 @@ a.btn.primary { color: var(--accent-fg); }
 kbd { font: inherit; font-size: 11px; padding: 1px 5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); }
 .kbd-in-btn { margin-left: 6px; color: inherit; background: transparent; border-color: currentColor; opacity: 0.7; }
 .chord-tile.locked .chord-id { font-size: 15px; line-height: 1.3; text-align: center; }
+
+/* Build-the-chord: controls never move while the steps change */
+.build-controls { margin-bottom: 10px; }
+.build-controls .bc-fixed { min-width: 7.5em; justify-content: center; }
+.build-controls .bc-fixed-wide { min-width: 9.5em; justify-content: center; }
+.build-steps .build-text { min-height: 4.8em; }
+@media (max-width: 600px) { .build-steps .build-text { min-height: 7.5em; } }

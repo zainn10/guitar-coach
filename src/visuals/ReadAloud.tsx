@@ -68,6 +68,21 @@ function localEnglishVoices() {
   return local.length ? local : en;
 }
 
+// The Mac app's own little server can speak with the Mac's System Voice (including Siri voices,
+// which Chrome itself can't use). Only available when running as the Mac app.
+const MAC = '__mac__';
+let macCheck: Promise<boolean> | null = null;
+let macYes = false;
+function macVoiceAvailable(): Promise<boolean> {
+  if (typeof location === 'undefined' || location.port !== '47819' || !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return Promise.resolve(false);
+  macCheck ??= fetch('/caps', { cache: 'no-store' }).then(r => (r.ok ? r.text() : '')).then(t => (macYes = t.trim() === 'say')).catch(() => false);
+  return macCheck;
+}
+const macSay = (text: string, rate: number) =>
+  fetch(`/say?rate=${Math.round(180 * rate)}`, { method: 'POST', headers: { 'X-Guitar-Coach': '1', 'Content-Type': 'text/plain;charset=utf-8' }, body: text })
+    .then(r => { if (!r.ok) throw new Error('say failed'); });
+const macStop = () => { if (macYes) fetch('/say/stop', { method: 'POST', headers: { 'X-Guitar-Coach': '1' } }).catch(() => {}); };
+
 function pickVoice(name?: string) {
   const vs = localEnglishVoices();
   return vs.find(v => v.name === name)
@@ -83,6 +98,11 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
   const settings = store.get().settings;
   const [rate, setRate] = useState(settings.speechRate ?? 1);
   const [voiceName, setVoiceName] = useState(settings.speechVoice);
+  const [macOk, setMacOk] = useState(false);
+  useEffect(() => { macVoiceAvailable().then(setMacOk); }, []);
+  // the Mac's System Voice is the default whenever it's available
+  const useMac = macOk && (voiceName === MAC || !voiceName);
+  const cancelAll = () => { if (supported) speechSynthesis.cancel(); if (macOk) macStop(); };
   const units = useRef<Unit[]>([]);
   const pos = useRef({ u: 0, c: 0 });
   const [posU, setPosU] = useState(0); // for the "3 / 12" display
@@ -114,20 +134,26 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
     pos.current = { u, c };
     setPosU(u);
     mark(u);
-    const utt = new SpeechSynthesisUtterance(list[u].parts[c]);
-    const v = pickVoice(voiceName);
-    if (v) { utt.voice = v; utt.lang = v.lang; } else utt.lang = 'en-GB';
-    utt.rate = rate;
-    utt.onend = () => {
+    const onEnd = () => {
       if (g !== gen.current) return;
       const next = c + 1 < list[u].parts.length ? { u, c: c + 1 } : { u: u + 1, c: 0 };
       // a short breath between paragraphs
       if (next.u !== u) setTimeout(() => { if (g === gen.current) speakFrom(next.u, next.c); }, 350);
       else speakFrom(next.u, next.c);
     };
+    setStatus('playing');
+    if (useMac) {
+      // the server stops anything it was already saying before starting this
+      macSay(list[u].parts[c], rate).then(onEnd, () => { if (g === gen.current) stop(); });
+      return;
+    }
+    const utt = new SpeechSynthesisUtterance(list[u].parts[c]);
+    const v = pickVoice(voiceName);
+    if (v) { utt.voice = v; utt.lang = v.lang; } else utt.lang = 'en-GB';
+    utt.rate = rate;
+    utt.onend = onEnd;
     utt.onerror = e => { if (g === gen.current && e.error !== 'interrupted' && e.error !== 'canceled') stop(); };
     speechSynthesis.speak(utt);
-    setStatus('playing');
   };
 
   const start = (from = 0) => {
@@ -135,13 +161,13 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
     units.current = collect(target.current);
     speakFrom(from, 0);
   };
-  const pause = () => { gen.current++; speechSynthesis.cancel(); setStatus('paused'); };
+  const pause = () => { gen.current++; cancelAll(); setStatus('paused'); };
   const resume = () => speakFrom(pos.current.u, pos.current.c);
-  function stop() { gen.current++; if (supported) speechSynthesis.cancel(); mark(null); pos.current = { u: 0, c: 0 }; setStatus('idle'); }
+  function stop() { gen.current++; cancelAll(); mark(null); pos.current = { u: 0, c: 0 }; setStatus('idle'); }
   const skip = (d: number) => speakFrom(Math.max(0, Math.min(units.current.length - 1, pos.current.u + d)), 0);
 
   // stop when leaving the page; pause when the microphone switches on (it would hear the voice)
-  useEffect(() => () => { gen.current++; if (supported) speechSynthesis.cancel(); units.current.forEach(u => u.el.classList.remove('reading')); }, [supported]);
+  useEffect(() => () => { gen.current++; if (supported) speechSynthesis.cancel(); macStop(); units.current.forEach(u => u.el.classList.remove('reading')); }, [supported]);
   useEffect(() => { if (micOn && status === 'playing') pause(); }, [micOn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // while the reader is on, clicking a paragraph reads from there
@@ -197,8 +223,9 @@ export function ReadAloud({ target, what = 'lesson' }: { target: RefObject<HTMLE
           {[0.8, 0.9, 1, 1.1, 1.25, 1.5].map(r => <option key={r} value={r}>{r}×</option>)}
         </select>
       </label>
-      {voices.length > 1 && <label className="small ra-opt">Voice
-        <select value={pickVoice(voiceName)?.name ?? ''} onChange={e => { setVoiceName(e.target.value); store.setSettings({ speechVoice: e.target.value }); }}>
+      {(voices.length > 1 || macOk) && <label className="small ra-opt">Voice
+        <select value={useMac ? MAC : pickVoice(voiceName)?.name ?? ''} onChange={e => { setVoiceName(e.target.value); store.setSettings({ speechVoice: e.target.value }); }}>
+          {macOk && <option value={MAC}>Your Mac's System Voice (e.g. Siri)</option>}
           {voices.map(v => <option key={v.name} value={v.name}>{v.name.replace(/\s*\(.*\)$/, '')} ({v.lang})</option>)}
         </select>
       </label>}

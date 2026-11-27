@@ -18,6 +18,7 @@ Personal context about the user is deliberately NOT kept in this public reposito
   folder via the File System Access API (Recordings/, Backups/latest-backup.json).
 
 ## Product rules (keep them)
+- Build-the-chord shows the whole chord first and animates by itself; controls never move.
 - Microphone off by default; on only during an exercise; visible stop button; auto-off after 2 min idle
   and on page change.
 - Uncertain detections show a "?" (amber/grey), never a red cross. False alarms are worse than misses.
@@ -26,6 +27,8 @@ Personal context about the user is deliberately NOT kept in this public reposito
   `onset.minNoteClarity` in thresholds): taps and knocks must never count as notes.
 - Read aloud (`src/visuals/ReadAloud.tsx`, text rules in `src/speech.ts`): Web Speech API, local voices only
   when available, sentence-sized pieces (Chrome cuts long ones), pauses when the mic turns on.
+  In the Mac app it defaults to the Mac's System Voice (Siri voices too) via `POST /say` on server.pl
+  (custom header + origin check, text piped to /usr/bin/say with no shell). Needs a reinstalled app.
 - Songs are chord progressions only: no lyrics, melodies, riffs or solos of copyrighted songs.
 - "Ask Claude" uses the user's own API key, stored in the browser only, excluded from backups.
 - Never commit personal information about the user to this repository.
