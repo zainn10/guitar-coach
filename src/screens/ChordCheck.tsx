@@ -8,7 +8,8 @@ import { analysePlucks, StringCheckResult, PluckStatus } from '../audio/stringCh
 import type { StringStatus } from '../audio/chordCheck';
 
 const PLUCK_TO_STATUS: Record<PluckStatus, StringStatus> = { ok: 'ok', muted: 'damped', 'wrong-note': 'wrong-note', 'not-played': 'missing' };
-import { encodeWav, downloadBlob } from '../audio/wav';
+import { encodeWav } from '../audio/wav';
+import { saveRecording } from '../storage/folder';
 import { ChordDiagram, FingerLegend, statusStyle } from '../visuals/ChordDiagram';
 import { CHORDS, PHASE0_CHORDS, chordById, THRESHOLDS } from '../content';
 import { store, masteryState } from '../storage/store';
@@ -193,7 +194,7 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
                     <p className="small muted">Pluck the strings again to re-check.</p>
                     <button className="btn link" onClick={() => {
                       const f = lastFrame.current; const sr = engine.sampleRate;
-                      if (f !== null) downloadBlob(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(8 * sr))), sr), `flagged-${chordId}-strings-${pluckResult.strings.map(x => x.string + x.status).join('_')}-${Date.now()}.wav`);
+                      if (f !== null) saveRecording(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(8 * sr))), sr), `flagged-${chordId}-strings-${pluckResult.strings.map(x => x.string + x.status).join('_')}-${Date.now()}.wav`);
                     }}>That's not right: save this for Claude to look at</button>
                   </div>
                 )}
@@ -206,7 +207,7 @@ function ChordCheckBody({ chordId }: { chordId: string }) {
             {mode === 'strum' && result && phase !== 'hearing' && <ResultView result={result} onWrong={() => {
               const f = lastFrame.current;
               const sr = engine.sampleRate;
-              if (f !== null) downloadBlob(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(2.4 * sr))), sr), `flagged-${chordId}-said-${result.verdict}-${result.issues.map(i => i.kind + i.string).join('_') || 'clean'}-${Date.now()}.wav`);
+              if (f !== null) saveRecording(encodeWav(engine.getRange(f - Math.round(0.6 * sr), Math.min(engine.written, f + Math.round(2.4 * sr))), sr), `flagged-${chordId}-said-${result.verdict}-${result.issues.map(i => i.kind + i.string).join('_') || 'clean'}-${Date.now()}.wav`);
             }} />}
             <div className="row spread wrap listen-foot">
               <span className="small muted"><LevelMeter compact /> {ignored > 0 && <span key={ignored} className="fade">Small sound ignored</span>}</span>

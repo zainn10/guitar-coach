@@ -41,6 +41,13 @@ export function App() {
   }, [settings.theme]);
 
   const [newer, setNewer] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const on = (e: Event) => { setToast((e as CustomEvent<string>).detail); clearTimeout(t); t = setTimeout(() => setToast(null), 4000); };
+    addEventListener('gc-saved', on);
+    return () => removeEventListener('gc-saved', on);
+  }, []);
   useEffect(() => {
     if (BUILD === 'dev') return;
     latestVersion().then(v => { if (v && v > BUILD) setNewer(v); });
@@ -78,6 +85,7 @@ export function App() {
         </div>
       )}
       <main><Screen /></main>
+      {toast && <div className="toast" role="status">{toast}</div>}
       <footer className="foot small muted">Everything runs on this computer. Nothing you play is uploaded. · Version {BUILD}</footer>
     </div>
   );

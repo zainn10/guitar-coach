@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { engine } from '../audio/engine';
 import { detectOnsets } from '../audio/onset';
 import { analyseChord, ChordResult } from '../audio/chordCheck';
-import { encodeWav, downloadBlob } from '../audio/wav';
+import { encodeWav } from '../audio/wav';
+import { saveRecording } from '../storage/folder';
 import { STRING_SHORT } from '../audio/notes';
 import { CHORDS, PHASE0_CHORDS, chordById, THRESHOLDS } from '../content';
 import { effectiveLatency } from '../storage/store';
@@ -54,7 +55,7 @@ function Body() {
         <div className="row">
           <button className="btn primary" onClick={record} disabled={busy}>{busy ? 'Recording…' : 'Record 5 seconds'}</button>
           {rec && <button className="btn" onClick={() => engine.play(rec.sig)}>▶ Play back</button>}
-          {rec && <button className="btn" onClick={() => downloadBlob(encodeWav(rec.sig, rec.sr), `chord-${chordId}-${Date.now()}.wav`)}>Save .wav</button>}
+          {rec && <button className="btn" onClick={() => saveRecording(encodeWav(rec.sig, rec.sr), `chord-${chordId}-${Date.now()}.wav`)}>Save .wav</button>}
         </div>
         {report && (
           <div className="diag">

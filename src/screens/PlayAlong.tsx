@@ -4,7 +4,8 @@ import { scheduleClicks } from '../audio/metronome';
 import { analyseTake, TakeResult } from '../audio/performance';
 import { useStrums } from '../audio/useStrums';
 import { addStrum, addClick } from '../audio/synth';
-import { encodeWav, downloadBlob } from '../audio/wav';
+import { encodeWav } from '../audio/wav';
+import { saveRecording } from '../storage/folder';
 import { ChordDiagram, statusStyle } from '../visuals/ChordDiagram';
 import { SongMap, SongMapKey } from '../visuals/SongMap';
 import { CHORDS, FIRST_SONG, chordById, THRESHOLDS } from '../content';
@@ -222,7 +223,7 @@ function TakeView({ take, sel, setSel }: { take: Take; sel?: number; setSel: (b:
           <p className="small muted">From Phase 1 these feed straight into your practice sessions and change drills.</p>
         </div>
       )}
-      <button className="btn link" onClick={() => downloadBlob(encodeWav(take.signal, take.sr), `play-along-take-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.wav`)}>Save this take as a sound file (for feedback)</button>
+      <button className="btn link" onClick={() => saveRecording(encodeWav(take.signal, take.sr), `play-along-take-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.wav`)}>Save this take as a sound file (for feedback)</button>
     </Card>
   );
 }

@@ -3,7 +3,7 @@ import { engine } from '../audio/engine';
 import { scheduleClicks } from '../audio/metronome';
 import { loopbackLatency, strumAlongLatency, CalibrationResult } from '../audio/latency';
 import { store, effectiveLatency } from '../storage/store';
-import { downloadBlob } from '../audio/wav';
+import { chooseFolder, folderPermission, folderSupported, forgetFolder, getFolder, saveFile, subscribeFolder } from '../storage/folder';
 import { Card, LevelMeter, MicGate, startMic, stopMic, useEngineState, useStore, micErrorText, StopListening } from '../ui';
 import { useStrums } from '../audio/useStrums';
 import type { Sensitivity } from '../audio/onset';
@@ -211,12 +211,44 @@ function SensitivityCard() {
 
 function BackupCard() {
   const [msg, setMsg] = useState<string | null>(null);
+  const [folderName, setFolderName] = useState<string | null>(null);
+  const [perm, setPerm] = useState<string>('none');
+  const refresh = async () => {
+    const d = await getFolder();
+    setFolderName(d ? d.name : null);
+    setPerm(await folderPermission());
+  };
+  useEffect(() => { refresh(); return subscribeFolder(refresh); }, []);
+  const backupName = () => `guitar-coach-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  const backupBlob = () => new Blob([store.exportJson()], { type: 'application/json' });
+
   return (
-    <Card title="Where your progress is saved">
-      <p>Your settings and results are saved <strong>inside Google Chrome on this computer</strong>, not online. They stay there when you close the app or update it to a new version.</p>
-      <p className="small muted">They would be lost if you cleared Chrome's browsing data or switched computer, so save a backup file now and then (it's tiny).</p>
+    <Card title="Your Guitar Coach folder">
+      <p>Choose one folder for everything Guitar Coach saves: sound recordings go in <strong>Recordings</strong>, progress backups in <strong>Backups</strong>. We suggest <strong>Documents → Claude → Guitar Coach</strong>.</p>
+      {!folderSupported() && <p className="note warn">This needs Google Chrome. Files will go to your Downloads folder instead.</p>}
+      {folderSupported() && (
+        folderName ? (
+          <div className="row wrap">
+            <p className="folder-now">Saving to: <strong>{folderName}</strong>{perm !== 'granted' && <span className="muted small"> (Chrome will ask to allow it next time you save)</span>}</p>
+            <button className="btn small" onClick={async () => { try { await chooseFolder(); setMsg(null); } catch { /* cancelled */ } }}>Change folder</button>
+            <button className="btn link" onClick={forgetFolder}>Stop using a folder</button>
+          </div>
+        ) : (
+          <button className="btn primary" onClick={async () => {
+            try {
+              await chooseFolder();
+              const r = await saveFile('Backups', 'latest-backup.json', backupBlob());
+              setMsg(r === 'folder' ? 'Folder set. Your first backup is saved in it.' : 'Folder set.');
+            } catch { /* cancelled */ }
+          }}>Choose folder…</button>
+        )
+      )}
+      <p className="small muted">Your progress itself lives inside Chrome on this Mac. While a folder is set, the app also keeps <strong>Backups/latest-backup.json</strong> up to date automatically, so nothing is lost if Chrome's data is ever cleared.</p>
       <div className="row wrap">
-        <button className="btn" onClick={() => downloadBlob(new Blob([store.exportJson()], { type: 'application/json' }), `guitar-coach-backup-${new Date().toISOString().slice(0, 10)}.json`)}>Save backup file</button>
+        <button className="btn" onClick={async () => {
+          const r = await saveFile('Backups', backupName(), backupBlob());
+          setMsg(r === 'folder' ? `Saved ${backupName()} in your Backups folder.` : 'Backup saved to Downloads.');
+        }}>Save a dated backup now</button>
         <label className="btn">
           Restore from backup
           <input type="file" accept="application/json,.json" hidden onChange={async e => {
