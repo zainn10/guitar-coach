@@ -91,7 +91,7 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
     const xs = (str: number) => L + (6 - str) * sp;
     return (
       <figure className="chord-diagram" style={{ width, maxWidth: '100%' }}>
-        {title && <figcaption><span className="chord-id">{chord.id}</span> <span className="chord-name">{chord.name}</span></figcaption>}
+        {title && <figcaption><span className="chord-id">{chordSymbol(chord.id)}</span> <span className="chord-name">{chord.name}</span></figcaption>}
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
           {/* frets */}
           {Array.from({ length: nFrets + 1 }, (_, i) => (
@@ -142,7 +142,7 @@ export function ChordDiagram({ chord, view = 'chart', statuses, visibleSteps, hi
   const ys = (str: number) => T + (6 - str) * sh;
   return (
     <figure className="chord-diagram" style={{ width: width * 1.35, maxWidth: '100%' }}>
-      {title && <figcaption><span className="chord-id">{chord.id}</span> <span className="chord-name">{chord.name} · player's view</span></figcaption>}
+      {title && <figcaption><span className="chord-id">{chordSymbol(chord.id)}</span> <span className="chord-name">{chord.name} · player's view</span></figcaption>}
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label + ". Shown as you see it looking down at the neck."}>
         {Array.from({ length: nFrets + 1 }, (_, i) => (
           <line key={`f${i}`} y1={T} y2={T + 5 * sh} x1={L + i * fw} x2={L + i * fw}
@@ -190,4 +190,10 @@ export function FingerLegend() {
       ))}
     </ul>
   );
+}
+
+/** How a chord's short name is shown: internal ids like "Fsharp" or "Bbmaj7" become F♯, B♭maj7. */
+export function chordSymbol(id: string) {
+  const special: Record<string, string> = { Fsharp: 'F♯', Fsmall: 'F', Fflam: 'F' };
+  return special[id] ?? id.replace(/^([A-G])b/, '$1♭').replace(/^([A-G])#/, '$1♯');
 }

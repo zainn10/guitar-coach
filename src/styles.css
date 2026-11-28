@@ -323,7 +323,8 @@ button.mic-chip.on { color: var(--bad); }
 .rh-legend li { display: flex; align-items: center; gap: 6px; }
 
 /* build chord */
-.build-chord { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.build-chord { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.build-chord .build-steps { padding-top: 28px; }
 .build-chord .chord-diagram { flex: none; }
 .build-steps { flex: 1; min-width: 220px; }
 .build-progress { list-style: none; display: flex; gap: 6px; padding: 0; margin: 0 0 10px; }
@@ -589,5 +590,9 @@ kbd { font: inherit; font-size: 11px; padding: 1px 5px; border: 1px solid var(--
 .build-controls { margin-bottom: 10px; }
 .build-controls .bc-fixed { min-width: 7.5em; justify-content: center; }
 .build-controls .bc-fixed-wide { min-width: 9.5em; justify-content: center; }
-.build-steps .build-text { min-height: 4.8em; }
-@media (max-width: 600px) { .build-steps .build-text { min-height: 7.5em; } }
+.build-text-stack { display: grid; }
+.build-text-stack > .build-text { grid-area: 1 / 1; margin: 0; min-height: 0; }
+
+/* Animated visuals keep a fixed size, so nothing around them jumps while they play */
+.chord-change { width: 100%; }
+.btn.fixed-w { width: 8.6em; justify-content: center; white-space: nowrap; }

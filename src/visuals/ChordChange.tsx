@@ -3,7 +3,7 @@
 // fingers that slide along the same string ("guide fingers") get a dashed ring.
 import { useEffect, useState } from 'react';
 import { ChordShape, chordStrings, STRING_SHORT, ordinal } from '../audio/notes';
-import { FINGER_NAMES } from './ChordDiagram';
+import { FINGER_NAMES, chordSymbol } from './ChordDiagram';
 import { playChord } from '../audio/sounds';
 
 type Pos = { string: number; fret: number } | null;
@@ -65,9 +65,9 @@ export function ChordChange({ from, to, width = 300 }: { from: ChordShape; to: C
   return (
     <figure className="chord-change">
       <figcaption>
-        <span className={`cc-name ${!showB ? 'on' : ''}`}>{from.id}</span>
+        <span className={`cc-name ${!showB ? 'on' : ''}`}>{chordSymbol(from.id)}</span>
         <span className="cc-arrow" aria-hidden>→</span>
-        <span className={`cc-name ${showB ? 'on' : ''}`}>{to.id}</span>
+        <span className={`cc-name ${showB ? 'on' : ''}`}>{chordSymbol(to.id)}</span>
       </figcaption>
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Animation of fingers moving from ${from.name} to ${to.name}. ${lines.map(l => l.text).join(' ')}`}>
         {Array.from({ length: nFrets + 1 }, (_, i) => (
@@ -99,10 +99,10 @@ export function ChordChange({ from, to, width = 300 }: { from: ChordShape; to: C
         })}
         {[6, 5, 4, 3, 2, 1].map(s => <text key={`l${s}`} x={xs(s)} y={T + nFrets * fh + 22} textAnchor="middle" fontSize={14} fontWeight={600} fill="var(--muted)">{STRING_SHORT[s]}</text>)}
       </svg>
-      <div className="row wrap center-row">
-        <button className="btn small" onClick={() => setPlaying(p => !p)}>{playing ? '❚❚ Pause' : '▶ Animate'}</button>
-        <button className="btn small" onClick={() => { setPlaying(false); setShowB(v => !v); }}>Show {showB ? from.id : to.id}</button>
-        <button className="btn small" onClick={() => setSlow(s => !s)}>{slow ? 'Faster' : 'Slower'}</button>
+      <div className="row wrap center-row cc-controls">
+        <button className="btn small fixed-w" onClick={() => setPlaying(p => !p)}>{playing ? '❚❚ Pause' : '▶ Animate'}</button>
+        <button className="btn small fixed-w" onClick={() => { setPlaying(false); setShowB(v => !v); }}>Show {chordSymbol(showB ? from.id : to.id)}</button>
+        <button className="btn small fixed-w" onClick={() => setSlow(s => !s)}>{slow ? 'Faster' : 'Slower'}</button>
         <button className="btn small" onClick={async () => { await playChord(from); setTimeout(() => playChord(to), 1100); }}>▶ Hear it</button>
       </div>
       <ul className="cc-lines">
