@@ -9,7 +9,7 @@ import { store } from '../storage/store';
 import { useStore } from '../ui';
 import { ordinal, STRING_LABEL } from '../audio/notes';
 
-export function QuickQuiz({ kinds, onDone, seconds = 30 }: { kinds?: QuizQ['kind'][]; onDone?: (correct: number, total: number) => void; seconds?: number }) {
+export function QuickQuiz({ kinds, onDone, onAgain, seconds = 30 }: { kinds?: QuizQ['kind'][]; onDone?: (correct: number, total: number) => void; onAgain?: () => void; seconds?: number }) {
   const d = useStore();
   const qs = useMemo(() => makeQuiz(chordsSoFar(d), 3, kinds), []); // eslint-disable-line react-hooks/exhaustive-deps
   const [i, setI] = useState(0);
@@ -42,6 +42,7 @@ export function QuickQuiz({ kinds, onDone, seconds = 30 }: { kinds?: QuizQ['kind
     <div className="quick-quiz done">
       <div className="drill-big">{correct}/{qs.length}</div>
       <p>{correct === qs.length ? 'Perfect recall!' : correct > 0 ? 'Good. The ones you missed will come back.' : "Time's up. These will come back soon."}</p>
+      {onAgain && <button className="btn primary" onClick={onAgain}>Another round</button>}
     </div>
   );
   const q = qs[i];

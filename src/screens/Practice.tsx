@@ -23,6 +23,7 @@ export function Practice({ sub }: { sub?: string }) {
   const [pair, setPair] = useState<string>(arg && tab === 'drill' ? arg : weakChange ?? (chords.length >= 2 ? `${chords[0]}>${chords[1]}` : 'Em>Am'));
   const [chord, setChord] = useState<string>(arg && tab === 'check' ? arg : chords[0] ?? 'Em');
   const [a, b] = pair.split('>');
+  const [round, setRound] = useState(0); // a new quiz only when you ask for another round
   return (
     <div className="stack">
       <header className="page-head"><h1>Practice</h1><p className="lead">Tools to work on anything directly. The Today page builds these into sessions for you.</p></header>
@@ -62,8 +63,8 @@ export function Practice({ sub }: { sub?: string }) {
           </ul>
         </Card>
       )}
-      {tab === 'quiz' && <Card title="30-second quiz"><QuickQuiz key={Math.random()} /></Card>}
-      {tab === 'ear' && <Card title="Ear training: major or minor?"><p className="small muted">Major chords sound bright and settled; minor chords sound darker. Train your ear and you'll start recognising chords in songs.</p><QuickQuiz key={Math.random()} kinds={['ear']} /></Card>}
+      {tab === 'quiz' && <Card title="30-second quiz"><QuickQuiz key={'q' + round} onAgain={() => setRound(r => r + 1)} /></Card>}
+      {tab === 'ear' && <Card title="Ear training: major or minor?"><p className="small muted">Major chords sound bright and settled; minor chords sound darker. Train your ear and you'll start recognising chords in songs.</p><QuickQuiz key={'e' + round} kinds={['ear']} onAgain={() => setRound(r => r + 1)} /></Card>}
     </div>
   );
 }
