@@ -269,7 +269,7 @@ export function CheckView({ check, onDone }: { check: Check; onDone: Done }) {
     case 'self': return <SelfCheck check={check} onDone={onDone} />;
     case 'tuning': return <TuningCheck onDone={onDone} />;
     case 'chord': return <ChordMastery check={check} onDone={onDone} />;
-    case 'change': return <ChangeDrill from={check.from} to={check.to} target={check.target} onFinish={(r, passed) => onDone(passed, r.clean / (check.target ?? 30), passed ? [] : [`${Math.round(r.clean * 60 / r.seconds)} clean changes per minute`], passed ? [] : ['slow-changes', 'looking'])} />;
+    case 'change': return <ChangeDrill from={check.from} to={check.to} target={check.target} onFinish={(r, passed, problems) => onDone(passed, r.clean / (check.target ?? 30), passed ? [] : [`${Math.round(r.clean * 60 / r.seconds)} clean changes per minute`, ...problems], passed ? [] : ['slow-changes', 'looking', ...(problems.some(p => /mut|dead|ring/i.test(p)) ? ['muted-strings'] : []), ...(problems.some(p => /buzz/i.test(p)) ? ['buzzing'] : [])])} />;
     case 'strum': {
       const song = songFrom('strum', Array(check.bars ?? 4).fill(0).map((_, i) => (check.chords ?? ['G'])[i % (check.chords ?? ['G']).length]), check.bpm, check.pattern, false);
       return <div><StrumPattern pattern={check.pattern} bpm={check.bpm} chords={check.chords} /><TimedTakeCheck song={song} bpm={check.bpm} accuracy={check.accuracy ?? THRESHOLDS.mastery.strum.accuracy} onDone={onDone} /></div>;

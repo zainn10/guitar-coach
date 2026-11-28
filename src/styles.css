@@ -405,9 +405,15 @@ button.mic-chip.on { color: var(--bad); }
 .drill-meta .timer { font-variant-numeric: tabular-nums; font-weight: 800; }
 .drill-live, .drill-result, .drill-intro { display: grid; gap: 10px; justify-items: center; text-align: center; }
 .drill-intro { justify-items: start; text-align: left; }
-.drill-last { font-weight: 700; font-size: 1.1rem; }
-.drill-last.clean { color: var(--ok); }
-.drill-last.messy { color: var(--warn); }
+.drill-last { min-height: 5.6em; display: grid; align-content: start; gap: 4px; max-width: 34em; margin: 0 auto; }
+.drill-last .dl-word { font-weight: 800; font-size: 1.15rem; }
+.drill-last .dl-text { font-size: .95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.drill-last.clean .dl-word { color: var(--ok); }
+.drill-last.messy .dl-word { color: #b7791f; }
+.drill-last.not-counted .dl-word { color: var(--muted); }
+.drill-problems { text-align: left; margin-top: 12px; }
+.drill-problems h4 { margin: 0 0 6px; }
+.drill-problems ol { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
 .lesson-checks { margin-top: 28px; display: grid; gap: 10px; }
 .check-card { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
 .check-card.passed { border-color: var(--ok); }
