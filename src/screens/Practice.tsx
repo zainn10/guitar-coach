@@ -3,6 +3,7 @@ import { ChangeDrill } from '../checks/ChangeDrill';
 import { Metronome } from '../visuals/Metronome';
 import { QuickQuiz } from './QuickQuiz';
 import { ChordCheckBody } from './ChordCheck';
+import { FreePlay } from './FreePlay';
 import { chordsSoFar } from '../engine/course';
 import { rankedItems } from '../engine/session';
 import { SONGS } from '../content';
@@ -11,7 +12,7 @@ import { songUnlocked } from '../engine/course';
 import { Card, useStore } from '../ui';
 
 const TABS = [
-  { id: 'check', label: 'Chord check' }, { id: 'drill', label: 'Change drill' }, { id: 'metronome', label: 'Metronome' },
+  { id: 'free', label: 'Play freely' }, { id: 'check', label: 'Chord check' }, { id: 'drill', label: 'Change drill' }, { id: 'metronome', label: 'Metronome' },
   { id: 'ladder', label: 'Tempo ladders' }, { id: 'quiz', label: 'Quick quiz' }, { id: 'ear', label: 'Ear training' },
 ] as const;
 
@@ -28,6 +29,7 @@ export function Practice({ sub }: { sub?: string }) {
     <div className="stack">
       <header className="page-head"><h1>Practice</h1><p className="lead">Tools to work on anything directly. The Today page builds these into sessions for you.</p></header>
       <nav className="subnav" aria-label="Practice tools">{TABS.map(t => <a key={t.id} href={`#practice/${t.id}`} className={tab === t.id ? 'on' : ''}>{t.label}</a>)}</nav>
+      {tab === 'free' && <FreePlay />}
       {tab === 'check' && (
         <>
           <div className="chips">{(chords.length ? chords : ['Em', 'Am']).map(c => <button key={c} className={`chip big ${chord === c ? 'on' : ''}`} onClick={() => setChord(c)}>{c}</button>)}</div>

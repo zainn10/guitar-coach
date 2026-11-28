@@ -10,7 +10,7 @@ import { useEngineState } from '../ui';
  * Calls onStrum(frame) whenever a real strum is detected live from the microphone.
  * Small sounds (taps, fingers moving, room noise) are ignored; onIgnored is told about them.
  */
-export function useStrums(onStrum: (frame: number) => void, active = true, onIgnored?: () => void, mode: 'strum' | 'pluck' = 'strum') {
+export function useStrums(onStrum: (frame: number) => void, active = true, onIgnored?: () => void, mode: 'strum' | 'pluck' | 'any' = 'strum') {
   const cb = useRef(onStrum);
   cb.current = onStrum;
   const ig = useRef(onIgnored);
@@ -19,8 +19,9 @@ export function useStrums(onStrum: (frame: number) => void, active = true, onIgn
   useEffect(() => {
     if (!active || !running) return;
     const sr = engine.sampleRate;
-    const det = new OnsetDetector({ sampleRate: sr, minGapMs: THRESHOLDS.onset.minGapMs, sensitivity: THRESHOLDS.onset.sensitivity * (mode === 'pluck' ? 1.5 : 1) });
-    const gate = mode === 'pluck' ? isPluck : isStrum;
+    const det = new OnsetDetector({ sampleRate: sr, minGapMs: THRESHOLDS.onset.minGapMs, sensitivity: THRESHOLDS.onset.sensitivity * (mode === 'strum' ? 1 : 1.5) });
+    // 'any' (play freely): chords or single notes; the caller works out which, and ignores noise
+    const gate = mode === 'strum' ? isStrum : isPluck;
     let alive = true;
     const off = engine.subscribe((chunk, start) => {
       if (start < 0) return;

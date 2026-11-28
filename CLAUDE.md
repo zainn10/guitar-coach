@@ -29,6 +29,8 @@ Personal context about the user is deliberately NOT kept in this public reposito
   when available, sentence-sized pieces (Chrome cuts long ones), pauses when the mic turns on.
   In the Mac app it defaults to the Mac's System Voice (Siri voices too) via `POST /say` on server.pl
   (custom header + origin check, text piped to /usr/bin/say with no shell). Needs a reinstalled app.
+- Play freely (`src/screens/FreePlay.tsx`, logic in `src/audio/freePlay.ts`): judges each strum/note against
+  the chosen chords or song; ambiguous chords are reported as "X or Y?", never guessed; noise is ignored.
 - Songs are chord progressions only: no lyrics, melodies, riffs or solos of copyrighted songs.
 - "Ask Claude" uses the user's own API key, stored in the browser only, excluded from backups.
 - Never commit personal information about the user to this repository.

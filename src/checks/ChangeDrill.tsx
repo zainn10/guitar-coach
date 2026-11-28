@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { engine } from '../audio/engine';
 import { analyseChord, ChordResult } from '../audio/chordCheck';
+import { describeStrum, StrumNote } from '../audio/freePlay';
 import { useStrums } from '../audio/useStrums';
 import { ChordDiagram } from '../visuals/ChordDiagram';
 import { ChordChange } from '../visuals/ChordChange';
@@ -15,21 +16,6 @@ export function changeTarget(a: string, b: string): number {
   const t = THRESHOLDS.mastery.changes;
   const key = [a, b].sort().join('>');
   return (t.pairs as Record<string, number>)[key] ?? t.default;
-}
-
-/** What the last strum sounded like, in words you can act on. */
-interface StrumNote { kind: 'clean' | 'messy' | 'not-counted'; chord: string; text: string; fix?: string }
-
-function describeStrum(chord: string, r: ChordResult): StrumNote {
-  if (r.verdict === 'clean') return { kind: 'clean', chord, text: 'Clean: every string rang.' };
-  if (r.verdict === 'too-quiet') return { kind: 'not-counted', chord, text: 'Too quiet to check.', fix: 'Strum a little firmer, across all the strings.' };
-  if (r.verdict === 'wrong-chord') return { kind: 'not-counted', chord, text: `Didn't sound like ${chord} yet${r.bestMatch?.id && r.bestMatch.id !== chord ? ` (closer to ${r.bestMatch.id})` : ''}.`, fix: 'Check every finger is on the right string and fret before you strum.' };
-  // the problems we're sure about first; anything uncertain is said as "possibly"
-  const sure = r.issues.filter(i => i.certain);
-  const main = sure[0] ?? r.issues[0];
-  if (!main) return { kind: 'messy', chord, text: r.summary };
-  const more = sure.length > 1 ? ` (+${sure.length - 1} more)` : '';
-  return { kind: 'messy', chord, text: `${sure.length ? '' : 'Possibly: '}${main.message}${more}`, fix: main.fix };
 }
 
 export function ChangeDrill({ from, to, seconds = 60, target, onFinish }: { from: string; to: string; seconds?: number; target?: number; onFinish?: (r: DrillResult, passed: boolean, problems: string[]) => void }) {
