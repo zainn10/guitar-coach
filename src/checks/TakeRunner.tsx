@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { engine } from '../audio/engine';
 import { scheduleClicks } from '../audio/metronome';
-import { analyseTake, Song, TakeResult, barStrums } from '../audio/performance';
+import { analyseTake, Song, TakeResult, barStrums, BarResult } from '../audio/performance';
 import { useStrums } from '../audio/useStrums';
 import { ChordDiagram } from '../visuals/ChordDiagram';
 import { CHORDS, chordById, THRESHOLDS } from '../content';
@@ -12,15 +12,31 @@ import { useStore, startMic, stopMic, micErrorText, MicIcon } from '../ui';
 
 export interface Take { signal: Float32Array; sr: number; downbeats: number[]; result: TakeResult; bpm: number; song: Song }
 
-export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabel = 'Start', compact = false }: {
+/** A short verdict for one bar, shown the moment it's been played. */
+export function barVerdict(b: BarResult): { word: string; detail: string } {
+  if (b.status === 'green') return { word: 'Solid', detail: 'On time and clean.' };
+  if (b.onsetFrame === null) return { word: 'Struggling', detail: 'No strum heard on the change. Keep strumming on time, even if the chord isn\'t ready.' };
+  const off = b.offsetMs ?? 0;
+  if (b.status === 'red') {
+    if (b.chordResult && (b.chordResult.verdict === 'wrong-chord' || b.chordResult.verdict === 'too-quiet')) return { word: 'Struggling', detail: b.chordResult.summary };
+    return { word: 'Struggling', detail: `${Math.round(Math.abs(off))} ms ${off > 0 ? 'late' : 'early'}.` };
+  }
+  if (Math.abs(off) > 60) return { word: off > 0 ? 'A bit late' : 'A bit early', detail: `${Math.round(Math.abs(off))} ms ${off > 0 ? 'late' : 'early'}.` };
+  return { word: 'Messy', detail: b.messages[0]?.replace(/^Bar \d+( \([^)]*\))?:\s*/, '') ?? 'Some strings or strums were not clean.' };
+}
+
+export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, onStart, startLabel = 'Start', compact = false }: {
   song: Song; bpm: number; barRange?: [number, number]; loops?: number;
-  onResult: (take: Take) => void; startLabel?: string; compact?: boolean;
+  onResult: (take: Take) => void; onStart?: () => void; startLabel?: string; compact?: boolean;
 }) {
   const { settings } = useStore();
   const [phase, setPhase] = useState<'idle' | 'running' | 'analysing'>('idle');
   const [pos, setPos] = useState<{ bar: number; beat: number } | null>(null);
   const [flash, setFlash] = useState(0);
   const [err, setErr] = useState<string | null>(null);
+  // verdicts for bars already played in this take (index in `sequence`)
+  const [live, setLive] = useState<Record<number, BarResult>>({});
+  const [lastLive, setLastLive] = useState<number | null>(null);
   const cancel = useRef<() => void>(() => {});
   const lat = effectiveLatency(settings);
   const [b0, b1] = barRange ?? [1, song.bars.length];
@@ -31,7 +47,8 @@ export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabe
   useEffect(() => () => cancel.current(), []);
 
   const start = async () => {
-    setErr(null);
+    setErr(null); setLive({}); setLastLive(null);
+    onStart?.();
     try { await startMic(); } catch (e) { setErr(micErrorText(e)); return; }
     const ctx = engine.ctx!;
     const sr = engine.sampleRate;
@@ -45,10 +62,30 @@ export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabe
     const end = t0 + totalBeats * beatDur;
     setPhase('running');
     let stopped = false;
+    const L0 = Math.round((lat.ms / 1000) * sr);
+    const recStart = Math.round(t0 * sr) - Math.round(0.3 * sr);
+    const playedSong: Song = { ...s, bars: sequence.map(i => song.bars[i]) };
+    const dbs = sequence.map((_, k) => Math.round((t0 + (song.countInBars + k) * barDur) * sr) + L0 - recStart);
+    let scored = 0; // bars already given a live verdict
     const timer = setInterval(() => {
       const b = Math.floor((ctx.currentTime - t0) / beatDur);
       if (b < 0) return setPos({ bar: -1, beat: -1 });
       setPos({ bar: Math.floor(b / bpb) - song.countInBars, beat: b % bpb });
+      // Live verdict: once a bar is over (plus the mic delay and a moment for late strums), score just that bar.
+      if (scored < sequence.length) {
+        const barEnd = t0 + (song.countInBars + scored + 1) * barDur + lat.ms / 1000 + 0.35;
+        if (ctx.currentTime >= barEnd) {
+          const k = scored++;
+          try {
+            // only this bar (and a second before it), so it stays quick however long the song is
+            const from = Math.max(0, dbs[k] - sr);
+            const sig = engine.getRange(recStart + from, Math.round(ctx.currentTime * sr) - 64);
+            const r = analyseTake({ signal: sig, sampleRate: sr, song: playedSong, downbeatFrames: dbs.map(d => d - from), library: CHORDS, timing: THRESHOLDS.timing, chordSettings: THRESHOLDS.chordCheck, sensitivity: settings.sensitivity, barRange: [k + 1, k + 1] });
+            const br = r.bars[0];
+            if (br) { setLive(m => ({ ...m, [k]: br })); setLastLive(k); }
+          } catch { /* the full check at the end still runs */ }
+        }
+      }
     }, 25);
     cancel.current = () => { stopped = true; clicks.cancel(); clearInterval(timer); stopMic(); setPos(null); setPhase('idle'); };
     const L = Math.round((lat.ms / 1000) * sr);
@@ -69,6 +106,7 @@ export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabe
     result.bars.forEach((b, k) => { b.bar = sequence[k] + 1; b.messages = b.messages.map(m => m.replace(/^Bar \d+/, `Bar ${sequence[k] + 1}`)); });
     result.trouble.forEach(t => { t.bar = sequence[t.bar - 1] + 1; });
     setPhase('idle');
+    setLive({}); setLastLive(null);
     onResult({ signal, sr, downbeats, result, bpm, song: played });
   };
 
@@ -86,7 +124,7 @@ export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabe
     <div className={`take-runner ${compact ? 'compact' : ''}`}>
       <ol className="bar-strip" aria-label="Bars">
         {sequence.slice(0, 16).map((bi, i) => (
-          <li key={i} className={running && !counting && i === k ? 'now' : ''}><span className="bar-no">{bi + 1}</span>{song.bars[bi]}</li>
+          <li key={i} className={`${running && !counting && i === k ? 'now' : ''} ${live[i] ? `s-${live[i].status}` : ''}`} title={live[i] ? barVerdict(live[i]).word : undefined}><span className="bar-no">{bi + 1}</span>{song.bars[bi]}</li>
         ))}
       </ol>
       {(running || phase === 'idle') && (
@@ -105,6 +143,13 @@ export function TakeRunner({ song, bpm, barRange, loops = 1, onResult, startLabe
             {song.pattern && <p className="pattern-line" aria-label="Strumming pattern">{song.pattern.split('').map((c, i) => <span key={i} className={c === '-' ? 'ghost' : ''}>{c === 'D' ? '↓' : c === 'U' ? '↑' : '·'}</span>)}</p>}
             <p className="small muted">{counting ? `Count-in: ${song.countInBars} bar of clicks, then start.` : running ? 'Keep going, even if a chord is not ready.' : `${sequence.length} bars at ${bpm} bpm`}</p>
             <div className={`heard ${flash ? 'f' + (flash % 2) : ''}`} aria-hidden>{running ? 'heard' : ''}</div>
+            {/* the verdict for the bar you just played; fixed height so nothing jumps */}
+            <div className="live-verdict" aria-live="polite">
+              {running && lastLive !== null && live[lastLive] && (() => {
+                const v = barVerdict(live[lastLive]);
+                return <><span className={`lv-word s-${live[lastLive].status}`}>Bar {sequence[lastLive] + 1}: {v.word}</span><span className="lv-detail small">{v.detail}</span></>;
+              })()}
+            </div>
             {next && running && !counting && <div className="next"><p className="stage-label">Next</p><ChordDiagram chord={chordById(next)} view={settings.diagramView} width={130} /></div>}
           </div>
         </div>

@@ -596,3 +596,11 @@ kbd { font: inherit; font-size: 11px; padding: 1px 5px; border: 1px solid var(--
 /* Animated visuals keep a fixed size, so nothing around them jumps while they play */
 .chord-change { width: 100%; }
 .btn.fixed-w { width: 8.6em; justify-content: center; white-space: nowrap; }
+
+/* Live verdict for the bar just played */
+.live-verdict { min-height: 4.2em; display: grid; align-content: start; gap: 3px; margin: 2px 0 8px; }
+.lv-word { justify-self: start; font-weight: 800; font-size: 1.05rem; padding: 3px 12px; border-radius: 999px; }
+.lv-word.s-green { background: var(--ok); color: #fff; }
+.lv-word.s-amber { background: var(--warn); color: #1d2433; }
+.lv-word.s-red { background: var(--bad); color: #fff; }
+.lv-detail { color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

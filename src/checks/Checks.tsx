@@ -18,7 +18,7 @@ import { TakeView } from '../visuals/TakeView';
 import { recordTake } from '../engine/progress';
 import { store, masteryState } from '../storage/store';
 import { TroubleLink } from '../screens/Help';
-import { startMic, stopMic, micErrorText, useStore, StopListening } from '../ui';
+import { startMic, stopMic, micErrorText, useStore, StopListening, useEngineState } from '../ui';
 import { playNote } from '../audio/sounds';
 
 type Done = (passed: boolean, score: number, shortfall: string[], troubles?: string[]) => void;
@@ -136,7 +136,7 @@ function TimedTakeCheck({ song, bpm, accuracy, minGreen, onDone, recordAs }: { s
   const [take, setTake] = useState<Take | null>(null);
   return (
     <div>
-      <TakeRunner song={song} bpm={bpm} compact startLabel={take ? 'Try again' : 'Start'} onResult={t => {
+      <TakeRunner song={song} bpm={bpm} compact startLabel={take ? 'Try again' : 'Start'} onStart={() => setTake(null)} onResult={t => {
         setTake(t);
         if (recordAs) recordTake(recordAs, t, song.bpm);
         const bars = t.result.bars;
@@ -294,6 +294,9 @@ export function LessonChecks({ lesson }: { lesson: Lesson }) {
   const lp = lessons[lesson.id];
   const [open, setOpen] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<Record<number, { passed: boolean; shortfall: string[]; troubles: string[] }>>({});
+  // a new attempt (the mic switching on) clears the last attempt's "Not yet" box
+  const { running: micOn } = useEngineState();
+  useEffect(() => { if (micOn && open !== null) setFeedback(f => { const { [open]: _old, ...rest } = f; return rest; }); }, [micOn]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!lesson.checks.length) return null;
   return (
     <section className="lesson-checks" id="lesson-check" aria-label="Mastery checks">

@@ -72,7 +72,7 @@ export function SongPractice({ song, onDone }: { song: Song; onDone?: () => void
         <span className="small muted">Tempo ladder: {ladder.bpm} → {song.bpm} bpm{ladder.best ? ` · best clean ${ladder.best}` : ''}</span>
       </div>
       {fix && <p className="note warn"><strong>Fix-it loop:</strong> bars {fix.range[0]}–{fix.range[1]}, twice through, at {fix.bpm} bpm. <button className="btn link" onClick={() => setFix(null)}>Exit loop</button></p>}
-      <TakeRunner key={fix ? `fix-${fix.bpm}` : `song-${bpm}`} song={song} bpm={fix ? fix.bpm : bpm} barRange={fix?.range} loops={fix ? 2 : 1}
+      <TakeRunner key={fix ? `fix-${fix.bpm}` : `song-${bpm}`} onStart={() => { setTake(null); setMsg(null); }} song={song} bpm={fix ? fix.bpm : bpm} barRange={fix?.range} loops={fix ? 2 : 1}
         startLabel={take ? 'Play again' : 'Start'} onResult={afterTake} />
       {msg && <p className="note ok" role="status">{msg}</p>}
       {take && <Card title="Song map"><TakeView take={take} onFixIt={range => { setFix({ range, bpm: Math.max(40, (fix?.bpm ?? bpm) - 15), clean: 0 }); setMsg(null); }} /></Card>}
